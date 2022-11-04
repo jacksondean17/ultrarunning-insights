@@ -1,4 +1,4 @@
-const n_finishers = 50;
+const N_FINISHERS = 10;
 
 class MvWBarChart {
     constructor(globalApplicationState) {
@@ -22,6 +22,7 @@ class MvWBarChart {
             enter => {
                 let row = enter.append('tr')
                 row.append('td').text(d => d.event)
+                row.append('td').text(d => d.distance)
                 let raw_svg = row.append('td')
                     .append('div')
                     .classed('bar-container', true)
@@ -31,14 +32,14 @@ class MvWBarChart {
                 raw_svg.append('rect')
                     .attr('x', 0)
                     .attr('y', 0)
-                    .attr('width', d => this.overall_finishers_scale(d.percent_men))
+                    .attr('width', d => this.overall_finishers_scale(d.percent_men_winners))
                     .attr('height', 20)
                     .classed('men-bar', true)
 
                 raw_svg.append('rect')
-                    .attr('x', d => this.overall_finishers_scale(d.percent_men))
+                    .attr('x', d => this.overall_finishers_scale(d.percent_men_winners))
                     .attr('y', 0)
-                    .attr('width', d => this.overall_finishers_scale(d.percent_women))
+                    .attr('width', d => this.overall_finishers_scale(d.percent_women_winners))
                     .attr('height', 20)
                     .classed('women-bar', true)
                     
@@ -48,6 +49,20 @@ class MvWBarChart {
                     .classed('bar-container', true)
                     .append('svg')
                     .classed('bar', true)
+
+                norm_svg.append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', d => this.norm_finishers_scale(d.norm_men_liklihood))
+                    .attr('height', 20)
+                    .classed('men-bar', true)
+
+                norm_svg.append('rect')
+                    .attr('x', d => this.norm_finishers_scale(d.norm_men_liklihood))
+                    .attr('y', 0)
+                    .attr('width', d => this.norm_finishers_scale(d.norm_women_liklihood))
+                    .attr('height', 20)
+                    .classed('women-bar', true)
 
                 
 
@@ -108,8 +123,14 @@ class MvWBarChart {
         this.races.map(race => {
             let race_participants = this.ranks.filter(rank => rank.race_year_id === race.race_year_id);
             race.num_finishers = race_participants.filter(p => p.rank !== 'NA').length;
-            let denom = d3.min([race.num_finishers, 50])
+            race.num_men = race_participants.filter(p => p.gender === 'M').length;
+            race.num_women = race_participants.filter(p => p.gender === 'W').length;
 
+
+            /**
+             * Find raw percentage of top 50 winners who are male and female
+             */
+            let denom = d3.min([race.num_finishers, N_FINISHERS])
 
             race.men_winners = race_participants.filter(p => {
                 return p.gender === "M" && p.rank <= denom
@@ -118,16 +139,32 @@ class MvWBarChart {
                 return  p.gender === "W" && p.rank <= denom
             })
             // recalcualte the denominator since some of the race datasets have
-            // weird ties and can end up with more than 50 people finishing in the top 50
+            // weird ties and can end up with more than N people finishing in the top N spots
             denom = race.men_winners.length + race.women_winners.length
-            race.percent_men = race.men_winners.length / denom;
-            race.percent_women = race.women_winners.length / denom;
+            race.percent_men_winners = race.men_winners.length / denom;
+            race.percent_women_winners = race.women_winners.length / denom;
+
+            /**
+             * Find normalized percentage of top N finishers
+             */
+            race.men_liklihood_of_winning = race.men_winners.length / race.num_men;
+            race.women_liklihood_of_winning = race.women_winners.length / race.num_women;
+            let sum = race.men_liklihood_of_winning + race.women_liklihood_of_winning
+
+            race.norm_men_liklihood = race.men_liklihood_of_winning / sum;
+            race.norm_women_liklihood = race.women_liklihood_of_winning / sum;
+
+            console.log(`Men liklihood: ${race.norm_men_liklihood}`)
+            console.log(`Women liklihood: ${race.norm_women_liklihood}`)
+            console.log(`Sum: ${race.norm_women_liklihood + race.norm_men_liklihood}`)
+
 
 
 
 
         })
 
+        
         console.log(this.races)
     }
 }
