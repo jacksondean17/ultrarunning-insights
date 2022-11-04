@@ -1,0 +1,19 @@
+.bar-axis {
+    border: 1px solid #0E0;
+    flex-grow: 1;
+    width: 100%;
+    height: 20px;
+    
+  }
+
+.bar {
+    height: 20px;
+}
+
+.men-bar {
+    fill: #19A0AA;
+}
+
+.women-bar {
+    fill: #F15F36;
+}
