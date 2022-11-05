@@ -17,6 +17,10 @@
     fill: #F15F36;
 }
 
+.men-bar, .women-bar {
+    opacity: 0.9;
+}
+
 .unsorted {
     opacity: 0.5;
 }
@@ -27,3 +31,15 @@
     overflow: hidden;
 }
 
+.men-axis-label {
+    float: left;
+}
+
+.women-axis-label {
+    float: right;
+}
+
+.center-axis-line {
+    stroke-width: 1px;
+    stroke: rgb(86, 86, 86);
+}

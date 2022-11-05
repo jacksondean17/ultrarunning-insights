@@ -53,6 +53,13 @@ class MvWBarChart {
                         .attr('height', 20)
                         .classed('women-bar', true)
 
+                    raw_svg.append('line')
+                        .attr('y1', 0)
+                        .attr('x2', d => this.overall_finishers_scale(0.5))
+                        .attr('y2', 20)
+                        .attr('x1', d => this.overall_finishers_scale(0.5))
+                        .classed('center-axis-line', true)
+
 
                     let norm_svg = row.append('td')
                         .append('div')
@@ -73,6 +80,13 @@ class MvWBarChart {
                         .attr('width', d => this.norm_finishers_scale(d.norm_women_liklihood))
                         .attr('height', 20)
                         .classed('women-bar', true)
+
+                    norm_svg.append('line')
+                        .attr('y1', 0)
+                        .attr('x2', d => this.norm_finishers_scale(0.5))
+                        .attr('y2', 20)
+                        .attr('x1', d => this.norm_finishers_scale(0.5))
+                        .classed('center-axis-line', true)
 
                     return row
                 },
@@ -117,12 +131,16 @@ class MvWBarChart {
 
     initalizeSVG() {
         this.table = d3.select('#m-w-bars-table')
-        this.headers = this.table.select('thead').select('tr')
+        this.headers = this.table.select('thead').selectAll('tr')
         this.rows = this.table.select('tbody').selectAll('tr')
 
         // initialize header svgs
-        let raw_finishers_axis_svg = this.headers.select('#raw-top-finishers-header').append('div').append('svg')
-        let norm_finishers_axis_svg = this.headers.select('#norm-top-finishers-header').append('div').append('svg')
+        //        let raw_finishers_axis_svg = this.headers.select('#raw-top-finishers-header').append('div').append('svg')
+        //        let norm_finishers_axis_svg = this.headers.select('#norm-top-finishers-header').append('div').append('svg')
+
+        let raw_finishers_axis_svg = this.headers.select('#overall-axis').append('div').append('svg')
+        let norm_finishers_axis_svg = this.headers.select('#normalized-axis').append('div').append('svg')
+
 
         raw_finishers_axis_svg.classed('bar-axis', true)
         norm_finishers_axis_svg.classed('bar-axis', true)
@@ -279,7 +297,7 @@ class MvWBarChart {
 
     sortByNormTopFinishers() {
         this.setTableSortStatus('norm_top_finishers');
-    
+
         this.races.sort((a, b) => {
             if (this.table_sort_status.asc) {
                 return d3.ascending(a.norm_men_liklihood, b.norm_men_liklihood)
