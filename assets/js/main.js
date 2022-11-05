@@ -147,8 +147,8 @@ const globalApplicationState = {
  * Load d3 data from csv
  */
 
-races = d3.csv("assets/data/race.csv")
-ranks = d3.csv("assets/data/ultra_rankings.csv")
+races = d3.csv("assets/data/race.csv", d3.autoType)
+ranks = d3.csv("assets/data/ultra_rankings.csv", d3.autoType)
 
 races.then(races => {
   ranks.then(ranks => {
