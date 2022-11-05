@@ -1,9 +1,29 @@
+/**
+General styling for the table
+*/
+.styled-table tbody tr {
+    border-bottom: thin solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #f56d00;
+}
+
+
+.styled-table thead tr {
+    text-align: left;
+}
+
+    
 .bar-axis {
-    border: 1px solid #0E0;
     flex-grow: 1;
     width: 100%;
     height: 20px;
-  }
+}
 
 #m-w-bars-table tbody svg {
     height: 20px;
@@ -13,12 +33,21 @@
     fill: #19A0AA;
 }
 
+.men {
+    color: #19A0AA;
+}
+
+.women {
+    color: #F15F36;
+}
+
 .women-bar {
     fill: #F15F36;
 }
 
-.men-bar, .women-bar {
-    opacity: 0.9;
+.men-bar,
+.women-bar {
+    opacity: 0.8;
 }
 
 .unsorted {
@@ -42,4 +71,13 @@
 .center-axis-line {
     stroke-width: 1px;
     stroke: rgb(86, 86, 86);
+}
+
+.styled-table tbody tr:hover {
+    font-weight: bold;
+    color: #f56d00;
+}
+
+.styled-table tbody tr:hover td div svg rect {
+    opacity: 1;
 }

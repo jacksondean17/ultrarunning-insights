@@ -11,6 +11,11 @@ class MvWBarChart {
             asc: true
         }
 
+        this.selectedRow = {
+            idx: -1,
+            d: null
+        }
+
         this.processData();
         this.initalizeSVG();
         this.addEventListeners();
@@ -27,6 +32,12 @@ class MvWBarChart {
             .join(
                 enter => {
                     let row = enter.append('tr')
+
+                    row.on('click', (event, d) => {
+                        this.selectRow(d, this.races.indexOf(d));
+                    });
+
+                    
                     row.append('td')
                         .classed('race-data', true)
                         .text(d => d.event)
@@ -343,5 +354,14 @@ class MvWBarChart {
         }
     }
 
+
+    selectRow(row_data, idx) {
+
+        this.selectedRow.d = row_data;
+        this.selectedRow.idx = idx;
+
+
+        console.log(row_data);
+    }
 
 }
