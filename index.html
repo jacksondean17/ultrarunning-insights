@@ -25,6 +25,7 @@
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
+  <link href="assets/css/m-w-bars.css" rel="stylesheet">
 
   <!-- =======================================================
   * Template Name: NiceAdmin - v2.4.1
@@ -172,10 +173,45 @@
                   <h5 class="card-title">% of Top 50 Finishers</h5>
 
                   <!-- Bar Chart -->
-                  <div id="m-w-bars">
-                    <svg></svg>
-                  </div>
+                  <table id="m-w-bars-table" class="styled-table">
+                    <thead>
+                      <tr>
+                        <th id="race-header">
+                          Race
+                          <i class="bi bi-arrow-down-up"></i>
+                        </th>
+                        <th id="distance-header">
+                          Distance
+                          <i class="bi bi-arrow-down-up"></i>
+                        </th>
+                        <th id="raw-top-finishers-header">
+                          Overall Top Finishers
+                          <i class="bi bi-arrow-down-up"></i>
+                        </th>
+                        <th id="norm-top-finishers-header">
+                          Normalized Top Finishers
+                          <i class="bi bi-arrow-down-up"></i>
+                        </th>
+                      </tr>
+                      <tr>
+                        <th></th>
+                        <th></th>
+                        <th id="overall-axis">
+                          <span class="men-axis-label men">Men</span>
+                          <span class="women-axis-label women">Women</span>
+                        </th>
+                        <th id="normalized-axis">
+                          <span class="men-axis-label men">Men</span>
+                          <span class="women-axis-label women">Women</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
 
+                    </tbody>
+                  </table>
+
+<!--
                   <table class="table table-borderless datatable">
                     <thead>
                       <tr>
@@ -206,6 +242,7 @@
                       </tr>
                     </tbody>
                   </table>
+-->
 
                 </div>
 
