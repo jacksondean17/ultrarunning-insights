@@ -12,6 +12,13 @@
   scroll-behavior: smooth;
 }
 
+/* style of line charts */
+.line-chart {
+  stroke: rgb(79, 175, 211);
+  stroke-width: 2;
+  fill: none;
+}
+
 body {
   font-family: "Open Sans", sans-serif;
   background: #f6f9ff;
