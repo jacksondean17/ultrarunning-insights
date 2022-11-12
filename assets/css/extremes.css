@@ -1,0 +1,29 @@
+#extremes-select {
+    width: min-content;
+    display: inline-block;
+}
+
+.fastest {
+    font-family: 'Faster One', cursive;
+
+}
+
+.slowest {
+    font-family: 'Archivo Black', sans-serif;
+    font-weight: bolder;
+    font-stretch: extra-condensed;
+}
+
+.hardest {
+    font-family: 'Allerta Stencil', sans-serif;
+}
+
+.easiest {
+    font-family: 'Courgette', cursive;
+    font-style: italic;
+}
+
+.biggest {
+    font-family: 'Seymour One', sans-serif;
+    font-weight: bolder;
+}

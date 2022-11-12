@@ -1,5 +1,3 @@
-const N_FINISHERS = 10;
-const ANIMATION_DURATION = 500;
 
 class MvWBarChart {
     constructor(globalApplicationState) {

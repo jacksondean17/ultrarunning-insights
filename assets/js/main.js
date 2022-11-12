@@ -5,6 +5,9 @@
 * License: https://bootstrapmade.com/license/
 */
 
+const N_FINISHERS = 10;
+const ANIMATION_DURATION = 500;
+
 const globalApplicationState = {
   raceData: null,
   rankingData: null,
@@ -157,6 +160,7 @@ races.then(races => {
 
     console.log('loading data')
     const bar_chart = new MvWBarChart(globalApplicationState);
+    const extremes_chart = new ExtremesChart(globalApplicationState);
   })
 });
 
