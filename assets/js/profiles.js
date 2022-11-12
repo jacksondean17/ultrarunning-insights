@@ -1,8 +1,8 @@
 const ANIMATION_DURATION = 500;
 const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
 const USE_METRIC = true;
-const CHART_HEIGHT = 700;
-const CHART_WIDTH = 1200;
+const CHART_HEIGHT = 500;
+const CHART_WIDTH = 700;
 
 class ProfilesLineChart {
     constructor() {
@@ -25,15 +25,22 @@ class ProfilesLineChart {
 
         this.xScale = d3.scaleLinear()
             .domain([0, 170])
-            .range([MARGIN.left, CHART_WIDTH - MARGIN.right]);
+            // start is somewhere between 0 and yAxis padding
+            .range([this.xAxisPadding, CHART_WIDTH - this.yAxisPadding]);
+        this.svg.select('#x-axis')
+            .append('g')
+            .attr('transform', `translate(${this.xAxisPadding}, ${CHART_HEIGHT / 2})`)
+            .call(d3.axisBottom(this.xScale));
 
         this.yScale = d3.scaleLinear()
             .domain([-800, 800])
-            .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]);
-        // this.svg.select('#y-axis')
-        //     .append('g')
-        //     .attr('transform', `translate(${this.yAxisPadding},0)`)
-        //     .call(d3.axisLeft(this.yAxis).ticks(20, 's'));
+            // add in some padding
+            .range([CHART_HEIGHT - MARGIN.bottom, MARGIN.top]);
+
+        this.svg.select('#y-axis')
+            .append('g')
+            .attr('transform', `translate(${this.yAxisPadding},0)`)
+            .call(d3.axisLeft(this.yScale));
 
         // Append y axis text
         this.svg.select('#y-axis')
@@ -45,8 +52,8 @@ class ProfilesLineChart {
 
         this.lineGenerator = d3.line()
             .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
-            .x((d) => this.xScale(d.dist))
-            .y((d) => this.yScale(d.ele) + MARGIN.top);
+            .x((d) => this.xScale(d.dist) + this.xAxisPadding)
+            .y((d) => this.yScale(d.ele));
 
 
         // interaction handler from hw4 solution
@@ -96,15 +103,25 @@ class ProfilesLineChart {
         // });
     }
 
-    addLine(profile, race_year_id) {
-        console.log(profile);
-        // Draw the new line
-
+    drawAll(profiles) {
         this.svg
-            .select('#y-axis')
-            .select('g')
-            .call(d3.axisLeft(this.yScale));
+            .select('#lines')
+            .selectAll('.line')
+            .data(profiles)
+            .join('path')
+            .attr('fill', 'none')
+            .attr('stroke', ([id, gpx]) => this.colorScale(id))
+            .attr('stroke-width', 1)
+            .attr('d', ([id, gpx]) => {
+                d3.line()
+                    .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
+                    .x((d) => this.xScale(d.dist) + this.xAxisPadding)
+                    .y((d) => this.yScale(d.ele))
+                    (gpx);
+            });
+    }
 
+    addLine(profile, race_year_id) {
         this.svg
             .select('#lines')
             .selectAll('.line')
@@ -113,10 +130,40 @@ class ProfilesLineChart {
             .attr('fill', 'none')
             .attr('stroke', this.colorScale(race_year_id))
             .attr('stroke-width', 1)
-            .attr('d', this.lineGenerator
-            );
-    }
+            .attr('d', this.lineGenerator);
+        // .join(
+        //     enter => {
+        //         let line = enter.append('path')
+        //         .attr('fill', 'none')
+        //         .attr('stroke', this.colorScale(race_year_id))
+        //         .attr('stroke-width', 1)
+        //         .attr('d', this.lineGenerator);
 
+        //         return line;
+        //     },
+        //     update => update,
+        //     exit => exit);
+
+
+
+        // Add an interaction for the x position over the lines
+        this.svg.on('mousemove', (event) => {
+            const svgEdge = this.svg.node().getBoundingClientRect().x;
+            const distanceFromSVGEdge = event.clientX - svgEdge;
+
+            if (distanceFromSVGEdge > this.yAxisPadding) {
+                // Set the line position
+                this.svg
+                    .select('#overlay')
+                    .select('line')
+                    .attr('stroke', 'black')
+                    .attr('x1', distanceFromSVGEdge)
+                    .attr('x2', distanceFromSVGEdge)
+                    .attr('y1', this.height - this.xAxisPadding)
+                    .attr('y2', 0);
+            }
+        });
+    }
 }
 
 /**
@@ -125,8 +172,33 @@ class ProfilesLineChart {
 const line_chart = new ProfilesLineChart();
 course_mappings = d3.csv("assets/data/course_mappings.csv", d3.autoType);
 var profiles = [];
+let promises = [];
+// THIS IS CODE TO LOAD ALL GPX FILES SO THAT IT WORKS CONCURRENTLY
+// CAN'T GET IT TO PLAY NICE THOUGH
+// course_mappings.then(course_mappings => {
+//     course_mappings.forEach(cm => {
+//         profiles.push({id : cm.race_year_id, gpx: null});
+//         promises.push(d3.xml("../assets/data/gpx/" + cm.file))
+//     });
+// });
+// Promise.all(promises).then((values) => {
+//     console.log(values);
+//     console.log("promises", promises);
+//     promises.forEach(p => {
+//         if (p.PromiseState == 'fullfilled') {
+
+//         }
+//     })
+//     console.log("profiles", profiles);
+// });
+
+//     console.log(course_mappings);
+//     var q = d3.queue();
+//     course_mappings.forEach(cm => {
+//         q = q.defer(d3.xml, "../assets/data/gpx/" + cm.file);
+//     });
+//     q.await(process);
 course_mappings.then(course_mappings => {
-    console.log(course_mappings);
     course_mappings.forEach(cm => {
         let url = cm.file;
         d3.xml("../assets/data/gpx/" + url).then(function (gpx) {
@@ -156,6 +228,11 @@ course_mappings.then(course_mappings => {
     });
 });
 
+function process(data) {
+    for (i = 1; i < arguments.length; i++) {
+        console.log(arguments[i]);
+    }
+}
 
 /**
  *  Helper function for calculating the distance between two geographical points.
