@@ -71,9 +71,10 @@ class ExtremesChart {
         this.chart_title.text(this.selected_chart.title)
         this.y_axis_label.text(this.selected_chart.y_label)
         this.x_axis_scale.domain(this.selected_chart.data.map(d => d.id))
+        this.x_axis_scale.paddingInner(0.1)
         this.y_axis_scale.domain([0, d3.max(this.selected_chart.data, d => d.data)])
 
-        this.x_axis.tickValues(this.selected_chart.data.map(d => d.event))
+        //this.x_axis.tickValues(this.selected_chart.data.map(d => d.event))
         this.x_axis_wrapper.transition().duration(500).call(this.x_axis)
         this.y_axis_wrapper.transition().duration(500).call(this.y_axis)
 
@@ -90,12 +91,11 @@ class ExtremesChart {
                     .attr('x', d => this.x_axis_scale(d.id))
                     .attr('y', d => this.y_axis_scale(d.data))
                     .attr('width', this.x_axis_scale.bandwidth())
-//                    .attr('height', d => this.DIMENSIONS.drawable_height - this.y_axis_scale(d.data))
                     .attr('height', d =>  this.y_axis_scale(0) - this.y_axis_scale(d.data))
                     .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
                     .attr('fill', 'steelblue'),
                 update => update.transition().duration(500)
-                    .attr('x', d => this.x_axis_scale(d.event))
+                    .attr('x', d => this.x_axis_scale(d.id))
                     .attr('y', d => this.y_axis_scale(d.data))
                     .attr('width', this.x_axis_scale.bandwidth())
                     .attr('height', d => this.DIMENSIONS.drawable_height - this.y_axis_scale(d.data))
@@ -121,16 +121,63 @@ class ExtremesChart {
                                             })
                 break;
             case 'slowest':
+                this.selected_chart.y_label = 'Average Pace (min/mile)'
+                this.selected_chart.title = 'Average Pace of top 10 Finishers'
+                this.GAS.raceData.sort((a, b) => b.average_pace - a.average_pace)
+                this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
+                                                return {
+                                                    id: d.race_year_id,
+                                                    event: d.event,
+                                                    data: d.average_pace/60
+                                                }
+                                            })
 
                 break;
             case 'hardest':
-
+                this.selected_chart.y_label = 'Elevation Gain (ft)'
+                this.selected_chart.title = 'Total Elevation Gain'
+                this.GAS.raceData.sort((a, b) => b.elevation_gain - a.elevation_gain)
+                this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
+                                                return {
+                                                    id: d.race_year_id,
+                                                    event: d.event,
+                                                    data: d.elevation_gain
+                                                }
+                                            })
                 break;
             case 'easiest':
-
+                this.selected_chart.y_label = 'Elevation Gain (ft)'
+                this.selected_chart.title = 'Total Elevation Gain'
+                // custom sort that puts races with 0 elevation gain at the end
+                // just assuming that races with 0 elevation gain have incomplete data
+                this.GAS.raceData.sort((a, b) => {
+                    if (a.elevation_gain === 0) {
+                        return 1
+                    } else if (b.elevation_gain === 0) {
+                        return -1
+                    } else {
+                        return a.elevation_gain - b.elevation_gain
+                    }
+                })
+                this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
+                                                return {
+                                                    id: d.race_year_id,
+                                                    event: d.event,
+                                                    data: d.elevation_gain
+                                                }
+                                            })
                 break;
             case 'biggest':
-
+                this.selected_chart.y_label = 'Number of Finishers'
+                this.selected_chart.title = 'Number of Finishers'
+                this.GAS.raceData.sort((a, b) => b.num_finishers - a.num_finishers)
+                this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
+                                                return {
+                                                    id: d.race_year_id,
+                                                    event: d.event,
+                                                    data: d.num_finishers
+                                                }
+                                            })
                 break;
             default:
 
