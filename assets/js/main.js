@@ -8,12 +8,14 @@
 const N_FINISHERS = 10;
 const ANIMATION_DURATION = 500;
 
+/**
+
 const globalApplicationState = {
   raceData: null,
   rankingData: null,
   selectedRace: null
 };
-
+*/
 
 (function () {
   "use strict";
@@ -160,23 +162,4 @@ const globalApplicationState = {
 
 })();
 
-
-
-/**
- * Load d3 data from csv
- */
-
-races = d3.csv("assets/data/race.csv", d3.autoType)
-ranks = d3.csv("assets/data/ultra_rankings.csv", d3.autoType)
-
-races.then(races => {
-  ranks.then(ranks => {
-    globalApplicationState.raceData = races;
-    globalApplicationState.rankingData = ranks;
-
-    console.log('loading data')
-    const bar_chart = new MvWBarChart(globalApplicationState);
-    const extremes_chart = new ExtremesChart(globalApplicationState);
-  })
-});
 

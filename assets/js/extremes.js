@@ -9,6 +9,7 @@ class ExtremesChart {
             data: null
         }
 
+        this.processData()
         this.initializeSVG();
         this.attchEventListeners();
 
@@ -199,5 +200,66 @@ class ExtremesChart {
         this.selected_chart.choice = value;
         this.update();
 
+    }
+
+
+    processData() {
+        console.log('races')
+        console.log(this.races)
+        console.log('ranks')
+        console.log(this.ranks)
+
+
+        this.GAS.raceData.map(race => {
+            let race_participants = this.GAS.rankingData.filter(rank => rank.race_year_id === race.race_year_id);
+            race.num_finishers = race_participants.filter(p => p.rank !== 'NA').length;
+            race.num_men = race_participants.filter(p => p.gender === 'M').length;
+            race.num_women = race_participants.filter(p => p.gender === 'W').length;
+
+
+            /**
+             * Find raw percentage of top 50 winners who are male and female
+             */
+            let denom = d3.min([race.num_finishers, N_FINISHERS])
+
+            race.men_winners = race_participants.filter(p => {
+                return p.gender === "M" && p.rank <= denom
+            })
+            race.women_winners = race_participants.filter(p => {
+                return p.gender === "W" && p.rank <= denom
+            })
+            // recalcualte the denominator since some of the race datasets have
+            // weird ties and can end up with more than N people finishing in the top N spots
+            denom = race.men_winners.length + race.women_winners.length
+            race.percent_men_winners = race.men_winners.length / denom;
+            race.percent_women_winners = race.women_winners.length / denom;
+
+            /**
+             * Find normalized percentage of top N finishers
+             */
+            race.men_liklihood_of_winning = race.men_winners.length / race.num_men;
+            race.women_liklihood_of_winning = race.women_winners.length / race.num_women;
+            let sum = race.men_liklihood_of_winning + race.women_liklihood_of_winning
+
+            race.norm_men_liklihood = race.men_liklihood_of_winning / sum;
+            race.norm_women_liklihood = race.women_liklihood_of_winning / sum;
+
+
+            /**
+             * Find average pace of top N finishers
+             */
+            let distance = 100
+            // average pace in seconds per mile
+            race.average_pace = d3.sum(race.men_winners, d => d.time_in_seconds / distance) + 
+            d3.sum(race.women_winners, d => d.time_in_seconds / distance) / denom
+            
+            
+
+
+
+        })
+
+
+        console.log(this.races)
     }
 }
