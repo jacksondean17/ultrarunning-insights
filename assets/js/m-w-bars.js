@@ -1,5 +1,3 @@
-const N_FINISHERS = 10;
-const ANIMATION_DURATION = 500;
 
 class MvWBarChart {
     constructor(globalApplicationState) {
@@ -225,7 +223,15 @@ class MvWBarChart {
             race.norm_women_liklihood = race.women_liklihood_of_winning / sum;
 
 
-
+            /**
+             * Find average pace of top N finishers
+             */
+            let distance = 100
+            // average pace in seconds per mile
+            race.average_pace = d3.sum(race.men_winners, d => d.time_in_seconds / distance) + 
+            d3.sum(race.women_winners, d => d.time_in_seconds / distance) / denom
+            
+            
 
 
 

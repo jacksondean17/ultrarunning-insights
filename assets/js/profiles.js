@@ -1,4 +1,3 @@
-const ANIMATION_DURATION = 500;
 const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
 const USE_METRIC = true;
 const CHART_HEIGHT = 500;
