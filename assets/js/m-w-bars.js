@@ -20,6 +20,10 @@ class MvWBarChart {
         this.draw();
     }
 
+    update() {
+        console.log('updating bar chart');
+        this.draw();
+    }
     onResize() {
 
     }
