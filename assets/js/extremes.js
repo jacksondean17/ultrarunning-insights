@@ -11,7 +11,7 @@ class ExtremesChart {
 
         this.processData()
         this.initializeSVG();
-        this.attchEventListeners();
+        this.attachEventListeners();
 
         this.update();
     }
@@ -186,7 +186,7 @@ class ExtremesChart {
     }
 
 
-    attchEventListeners() {
+    attachEventListeners() {
         this.select = d3.select('#extremes-select')
         d3.select('#extremes-select')
             .on('change', this.handleSelectChange.bind(this))

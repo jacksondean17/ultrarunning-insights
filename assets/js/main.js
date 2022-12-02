@@ -20,18 +20,18 @@ const globalApplicationState = {
 (function () {
   "use strict";
 
-  var target = "";
-  const tabs = document.querySelectorAll("input[type=radio]");
-  console.log(tabs);
-  tabs.forEach(function (radio) {
-    radio.addEventListener('change', function () {
-      target =
-        Array.from(tabs).filter(i => i.checked)
-          .map(i => i.value);
-      console.log(target);
-      document.location.href = target;
-    })
-  });
+  // var target = "";
+  // const tabs = document.querySelectorAll("input[type=radio]");
+  // console.log(tabs);
+  // tabs.forEach(function (radio) {
+  //   radio.addEventListener('change', function () {
+  //     target =
+  //       Array.from(tabs).filter(i => i.checked)
+  //         .map(i => i.value);
+  //     console.log(target);
+  //     document.location.href = target;
+  //   })
+  // });
 
   /**
    * Easy selector helper function

@@ -102,12 +102,14 @@ class ProfilesLineChart {
         // });
     }
 
+    
+    
     drawAll(profiles) {
         this.svg
-            .select('#lines')
-            .selectAll('.line')
-            .data(profiles)
-            .join('path')
+        .select('#lines')
+        .selectAll('.line')
+        .data(profiles)
+        .join('path')
             .attr('fill', 'none')
             .attr('stroke', ([id, gpx]) => this.colorScale(id))
             .attr('stroke-width', 1)
@@ -121,6 +123,7 @@ class ProfilesLineChart {
     }
 
     addLine(profile, race_year_id) {
+        console.log(profile);
         this.svg
             .select('#lines')
             .selectAll('.line')
@@ -134,6 +137,14 @@ class ProfilesLineChart {
         //     enter => {
         //         let line = enter.append('path')
         //         .attr('fill', 'none')
+
+        // add in data for a flat line
+        // .data([{dist: 0, ele: 0}, {dist: 160, ele: 0}])
+        // add a transition 
+        // .transition()
+        // now add in data for profile
+        // .data([profile])
+        // watch it grow!!!
         //         .attr('stroke', this.colorScale(race_year_id))
         //         .attr('stroke-width', 1)
         //         .attr('d', this.lineGenerator);
@@ -163,127 +174,45 @@ class ProfilesLineChart {
             }
         });
     }
-}
 
-/**
- * load gpx data as xml
- */
-const line_chart = new ProfilesLineChart();
-course_mappings = d3.csv("assets/data/course_mappings.csv", d3.autoType);
-var profiles = [];
-let promises = [];
-// THIS IS CODE TO LOAD ALL GPX FILES SO THAT IT WORKS CONCURRENTLY
-// CAN'T GET IT TO PLAY NICE THOUGH
-// course_mappings.then(course_mappings => {
-//     course_mappings.forEach(cm => {
-//         profiles.push({id : cm.race_year_id, gpx: null});
-//         promises.push(d3.xml("../assets/data/gpx/" + cm.file))
-//     });
-// });
-// Promise.all(promises).then((values) => {
-//     console.log(values);
-//     console.log("promises", promises);
-//     promises.forEach(p => {
-//         if (p.PromiseState == 'fullfilled') {
+    // process gpx data for a single profile
+    static process(gpx) {
+        let tracks = gpx.querySelector("trkpt");
+        let lon1 = +tracks.getAttribute("lon");
+        let lat1 = +tracks.getAttribute("lat");
 
-//         }
-//     })
-//     console.log("profiles", profiles);
-// });
+        let startingEle = +tracks.querySelector("ele").textContent;
+        let totalDist = 0;
 
-//     console.log(course_mappings);
-//     var q = d3.queue();
-//     course_mappings.forEach(cm => {
-//         q = q.defer(d3.xml, "../assets/data/gpx/" + cm.file);
-//     });
-//     q.await(process);
-course_mappings.then(course_mappings => {
-    course_mappings.forEach(cm => {
-        let url = cm.file;
-        d3.xml("../assets/data/gpx/" + url).then(function (gpx) {
-            let tracks = gpx.querySelector("trkpt");
-            let lon1 = +tracks.getAttribute("lon");
-            let lat1 = +tracks.getAttribute("lat");
-            // console.log(tracks);
-            let startingEle = +tracks.querySelector("ele").textContent;
-            // console.log(startingEle);
-            let totalDist = 0;
-            let points = [].map.call(gpx.querySelectorAll("trkpt"), function (d) {
-                // get distance from last point
-                let lat2 = +d.getAttribute("lat");
-                let lon2 = +d.getAttribute("lon");
-                // totalDist = totalDist + distance(lat1, lat2, lon1, lon2)
-                totalDist = totalDist + distance2(lat1, lon1, lat2, lon2)
-                lon1 = lon2; lat1 = lat2;
-                return {
-                    dist: totalDist,
-                    ele: +d.querySelector("ele").textContent - startingEle
-                }
-            });
-            console.log(points);
-            line_chart.addLine(points, cm.race_year_id);
-            profiles.push({ id: cm.race_year_id, profile: points });
+        let points = [].map.call(gpx.querySelectorAll("trkpt"), function (d) {
+            // get distance from last point
+            let lat2 = +d.getAttribute("lat");
+            let lon2 = +d.getAttribute("lon");
+            totalDist = totalDist + this.distance2(lat1, lon1, lat2, lon2)
+            lon1 = lon2; lat1 = lat2;
+            return {
+                dist: totalDist,
+                ele: +d.querySelector("ele").textContent - startingEle
+            }
         });
-    });
-});
-
-function process(data) {
-    for (i = 1; i < arguments.length; i++) {
-        console.log(arguments[i]);
+        return points;
     }
-}
-
-/**
- *  Helper function for calculating the distance between two geographical points.
- * @param {*} lat1 
- * @param {*} lat2 
- * @param {*} lon1 
- * @param {*} lon2 
- * @returns 
- */
-function distance(lat1, lat2, lon1, lon2) {
-
-    // The math module contains a function
-    // named toRadians which converts from
-    // degrees to radians.
-    lon1 = lon1 * Math.PI / 180;
-    lon2 = lon2 * Math.PI / 180;
-    lat1 = lat1 * Math.PI / 180;
-    lat2 = lat2 * Math.PI / 180;
-
-    // Haversine formula
-    let dlon = lon2 - lon1;
-    let dlat = lat2 - lat1;
-    let a = Math.pow(Math.sin(dlat / 2), 2)
-        + Math.cos(lat1) * Math.cos(lat2)
-        * Math.pow(Math.sin(dlon / 2), 2);
-
-    let c = 2 * Math.asin(Math.sqrt(a));
-
-    // Radius of earth in kilometers. Use 3956
-    // for miles
-    let r = 6371;
-    if (!USE_METRIC)
-        r = 3956;
-
-    // calculate the result
-    return (c * r);
-}
-
-function distance2(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-    var dLon = deg2rad(lon2 - lon1);
-    var a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        ;
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180)
+    
+    static distance2(lat1, lon1, lat2, lon2) {
+        var R = 6371; // Radius of the earth in km
+        var dLat = this.deg2rad(lat2 - lat1);  // deg2rad below
+        var dLon = this.deg2rad(lon2 - lon1);
+        var a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+            ;
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c; // Distance in km
+        return d;
+    }
+    
+    static deg2rad(deg) {
+        return deg * (Math.PI / 180)
+    }
 }
