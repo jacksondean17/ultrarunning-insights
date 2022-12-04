@@ -7,6 +7,7 @@ const globalApplicationState = {
   profileData: null,
   selectedRace: null,
   MvWBarChart: null,
+  MvWScatterChart: null,
   ExtremesChart: null,
   ProfilesChart: null
 };
@@ -31,8 +32,9 @@ races.then(races => {
 
     console.log('loading data');
     const bar_chart = new MvWBarChart(globalApplicationState);
-
+    const scatter_chart = new MvWScatterChart(globalApplicationState);
     globalApplicationState.MvWBarChart = bar_chart;
+    globalApplicationState.MvWScatterChart = scatter_chart;
     drawn.MvWBarChart = true;
   })
 });
@@ -45,15 +47,12 @@ course_mappings.then(course_mappings => {
 async function loadProfiles(course_mappings) {
   const promises = course_mappings.map(cm => d3.xml(`../assets/data/gpx/${cm.file}`, d3.autoType)
     .then(d => {
-      console.log('cm', cm);
       // push to map key of id and value of gpx
-      //return { id: cm.id, gpx: d };
       return { id: cm.race_year_id, gpx: ProfilesLineChart.process(d, cm) };
     }));
   let profiles = await Promise.all(promises);
   console.log('end of loadProfiles', profiles);
   globalApplicationState.profileData = profiles;
-  console.log(globalApplicationState);
   document.getElementById('pills-event-tab').classList.remove('disabled');
   return profiles;
 }

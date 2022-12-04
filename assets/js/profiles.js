@@ -134,59 +134,6 @@ class ProfilesLineChart {
         .attr('stroke', color)
         .attr('fill', 'none')
     });
-
-    // this.svg
-    //   .select('#lines')
-    //   .selectAll('.line')
-    //   .data(sumstat)
-    //   .attr('fill', 'none')
-    //   .attr('stroke', ([id, gpx]) => this.colorScale(id))
-
-    //   .attr('stroke-width', 1)
-    //   .attr('d', ([id, gpx]) => {
-    //     d3.line()
-    //       .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
-    //       .x((d) => this.xScale(d.dist) + this.xAxisPadding)
-    //       .y((d) => this.yScale(d.ele))
-    //       (gpx);
-    //   });
-    // .join(
-    //   enter => {
-    //     let line = enter.append('path')
-    //       .attr('fill', 'none')
-    //       .attr('stroke-width', 1)
-    //       // .data([{ dist: 0, ele: 0 }, { dist: 160, ele: 0 }])
-    //       // .attr('d', this.lineGenerator)
-    //       //.transition()
-    //       .attr('stroke', ([id, gpx]) => this.colorScale(id))
-    //       //.attr('d', this.lineGenerator)
-    //       .attr('d', ([id, gpx]) => {
-    //         d3.line()
-    //           .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
-    //           .x((d) => this.xScale(d.dist) + this.xAxisPadding)
-    //           .y((d) => this.yScale(d.ele))
-    //           (gpx);
-    //       })
-    //   },
-    //   update => {
-    //     let line = update.append('path')
-    //     .attr('fill', 'none')
-    //     .attr('stroke-width', 1)
-    //     // .data([{ dist: 0, ele: 0 }, { dist: 160, ele: 0 }])
-    //     // .attr('d', this.lineGenerator)
-    //     //.transition()
-    //     .attr('stroke', ([id, gpx]) => this.colorScale(id))
-    //     //.attr('d', this.lineGenerator)
-    //     .attr('d', ([id, gpx]) => {
-    //       d3.line()
-    //         .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
-    //         .x((d) => this.xScale(d.dist) + this.xAxisPadding)
-    //         .y((d) => this.yScale(d.ele))
-    //         (gpx);
-    //     })
-    //   },
-    //   exit => exit.remove()
-    // );
   }
 
   addLine(profile, race_year_id) {
