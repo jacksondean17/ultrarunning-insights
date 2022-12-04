@@ -247,8 +247,8 @@ def plot_scores_vs_elevation():
 
     plt.show()
 
-#plot_scores_vs_population_density()
-#plot_scores_vs_health_care()
+#plot_scores_vs_population_density() # yes
+#plot_scores_vs_health_care() # yes
 #plot_scores_vs_land_area()
-#plot_scores_vs_cost_of_living()
-#plot_scores_vs_elevation()
+#plot_scores_vs_cost_of_living() # yes
+#plot_scores_vs_elevation() # yes
