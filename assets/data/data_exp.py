@@ -123,6 +123,7 @@ def plot_scores_vs_population_density():
     #calculate equation for trendline
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
+    print(p)
     plt.plot(x, p(x))
 
     plt.xlabel('Population Density')
@@ -243,12 +244,29 @@ def plot_scores_vs_elevation():
     #calculate equation for trendline
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
+    print(p)
     plt.plot(x, p(x))
 
     plt.show()
 
-#plot_scores_vs_population_density() # yes
+def save_data():
+    scores = get_country_scores()
+    norm_scores = normalize_scores_by_participation(scores)
+    pop_data = get_population_data()
+    health_data = get_health_care_data()
+    cost_data = get_cost_of_living_data()
+    elevation_data = get_elevation_data()
+    
+    with open('./assets/data/demographics/processed_data.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['country', 'score', 'population_density', 'health_care', 'cost_of_living', 'elevation'])
+        for c in norm_scores:
+            if c in pop_data and c in health_data and c in cost_data and c in elevation_data:
+                writer.writerow([c, f'{norm_scores[c]:.2f}', pop_data[c]['Density pop./km2'], health_data[c]['Health Care Index'], cost_data[c]['Cost of Living Index'], elevation_data[c]['Elevation'].replace(',', '')])
+
+plot_scores_vs_population_density() # yes
 #plot_scores_vs_health_care() # yes
 #plot_scores_vs_land_area()
 #plot_scores_vs_cost_of_living() # yes
 #plot_scores_vs_elevation() # yes
+#save_data()

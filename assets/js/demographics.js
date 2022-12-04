@@ -4,145 +4,205 @@ class DemographicsChart {
 
         this.selected_points = [];
 
-        this.processData()
-        this.initializeSVG();
-        this.attachEventListeners();
+        this.population = {}
+        this.health = {}
+        this.living = {}
+        this.elevation = {}
 
-        this.update();
+        d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
+            this.data = data;
+            console.log(this.data)
+            this.initializeSVG();
+
+            this.update();
+        })
     }
 
     initializeSVG() {
-        this.container1 = d3.select('#demographics-chart-1')
-        this.container2 = d3.select('#demographics-chart-2')
-        this.container3 = d3.select('#demographics-chart-3')
-        this.container4 = d3.select('#demographics-chart-4')
+        this.population.container = d3.select('#demographics-chart-1')
+        this.health.container = d3.select('#demographics-chart-2')
+        this.living.container = d3.select('#demographics-chart-3')
+        this.elevation.container = d3.select('#demographics-chart-4')
 
-        this.demo_charts = d3.selectAll('.demo-chart').append('svg')
+        this.svgs = d3.selectAll('.demo-chart').append('svg')
             .attr('width', '100%')
-            .attr('height', '30vh')
+            .attr('height', '32vh')
 
         // scroll to hide tabs
         window.scrollTo(0, 100)
 
-        this.svg_population = this.demo_charts.filter('#demographics-chart-1')
-        this.svg_health = this.demo_charts.filter('#demographics-chart-2')
-        this.svg_living = this.demo_charts.filter('#demographics-chart-3')
-        this.svg_elevation = this.demo_charts.filter('#demographics-chart-4')
+        this.population.svg = d3.select('#demographics-chart-1 svg')
+        this.health.svg = this.svgs.filter('#demographics-chart-2')
+        this.living.svg = this.svgs.filter('#demographics-chart-3')
+        this.elevation.svg = this.svgs.filter('#demographics-chart-4')
 
         this.DIMENSIONS = {
-            margin_top: 20,
-            margin_bottom: 20,
+            margin_top: 5,
+            margin_bottom: 40,
             margin_left: 50,
             margin_right: 20,
-            width: this.svg_population.node().getBoundingClientRect().width,
-            height: this.svg_population.node().getBoundingClientRect().height
+            width: this.population.svg.node().getBoundingClientRect().width,
+            height: this.population.svg.node().getBoundingClientRect().height
         }
         this.DIMENSIONS.drawable_height = this.DIMENSIONS.height - this.DIMENSIONS.margin_top - this.DIMENSIONS.margin_bottom
         this.DIMENSIONS.drawable_width = this.DIMENSIONS.width - this.DIMENSIONS.margin_left - this.DIMENSIONS.margin_right
 
+        this.createScales()
+        this.createAxisLabels()
+        this.createAxes()
+    }
 
-        // scale for the 10 bars
-        this.x_axis_scale = d3.scaleBand()
-            .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-            .range([0, this.DIMENSIONS.drawable_width])
-        this.y_axis_scale = d3.scaleLinear()
-            .domain([0, 100])
+    createScales() {
+        this.yScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.score), d3.max(this.data, d => d.score)])
             .range([this.DIMENSIONS.drawable_height, 0])
-
-        this.x_axis = d3.axisBottom(this.x_axis_scale)
-        this.y_axis = d3.axisLeft(this.y_axis_scale)
-        this.x_axis_wrapper = this.svg.append('g')
-            .attr('class', 'x-axis')
-            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
-            .call(this.x_axis)
-        this.y_axis_wrapper = this.svg.append('g')
-            .attr('class', 'y-axis')
-            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
-            .call(this.y_axis)
-
-        
-
-        this.chart_title = this.svg.append('text')
-            .attr('class', 'chart-title')
-            .attr('x', this.DIMENSIONS.width / 2)
-            .attr('y', 20)
-            .attr('text-anchor', 'middle')
-            .text(this.selected_chart.title)
-
-        this.y_axis_label = this.svg.append('text')
-            .attr('class', 'axis-label')
-            .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
-            .attr('text-anchor', 'middle')
-            .text(this.selected_chart.y_label)
+        this.population.xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.population_density), d3.max(this.data, d => d.population_density)])
+            .range([0, this.DIMENSIONS.drawable_width])
+        this.yAxis = d3.axisLeft(this.yScale)
+        this.population.xAxis = d3.axisBottom(this.population.xScale)
 
     }
 
+
+
+    createAxes() {
+        this.population.xAxisWrapper = this.population.svg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+            .call(this.population.xAxis)
+        this.population.yAxisWrapper = this.population.svg.append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .call(this.yAxis)
+        this.health.xAxisWrapper = this.health.svg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+        this.health.yAxisWrapper = this.health.svg.append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+        this.living.xAxisWrapper = this.living.svg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+        this.living.yAxisWrapper = this.living.svg.append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+        this.elevation.xAxisWrapper = this.elevation.svg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+        this.elevation.yAxisWrapper = this.elevation.svg.append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+    }
+
+
+    createAxisLabels() {
+        this.population.y_label = this.population.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('text-anchor', 'middle')
+            .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
+            .text('Score')
+
+        this.population.x_label = this.population.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('transform', `translate(${this.DIMENSIONS.width / 2}, ${this.DIMENSIONS.height - 10})`)
+            .attr('text-anchor', 'middle')
+            .text('Population Density (people per square km)')
+
+        this.health.y_label = this.health.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('text-anchor', 'middle')
+            .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
+            .text('Score')
+
+        this.health.x_label = this.health.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('transform', `translate(${this.DIMENSIONS.width / 2}, ${this.DIMENSIONS.height - 10})`)
+            .attr('text-anchor', 'middle')
+            .text('Healthcare Index')
+
+        this.living.y_label = this.living.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('text-anchor', 'middle')
+            .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
+            .text('Score')
+
+        this.living.x_label = this.living.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('transform', `translate(${this.DIMENSIONS.width / 2}, ${this.DIMENSIONS.height - 10})`)
+            .attr('text-anchor', 'middle')
+            .text('Quality of Life Index')
+
+        this.elevation.y_label = this.elevation.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('text-anchor', 'middle')
+            .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
+            .text('Score')
+
+        this.elevation.x_label = this.elevation.svg.append('text')
+            .attr('class', 'axis-label')
+            .attr('transform', `translate(${this.DIMENSIONS.width / 2}, ${this.DIMENSIONS.height - 10})`)
+            .attr('text-anchor', 'middle')
+            .text('Elevation (meters above sea level)')
+    }
+
+
     update() {
-        this.getData();
 
-        this.chart_title.text(this.selected_chart.title)
-        this.y_axis_label.text(this.selected_chart.y_label)
-        this.x_axis_scale.domain(this.selected_chart.data.map(d => d.id))
-        this.x_axis_scale.paddingInner(0.1)
-        this.y_axis_scale.domain([0, d3.max(this.selected_chart.data, d => d.data)])
+        let regression = x => -0.01224*x + 11.78
+            
+        this.population.svg.append('path')
+            .datum(this.data)
+            .attr('class', 'regression')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .attr('d', d3.line()
+                .x(d => this.population.xScale(d.population_density))
+                .y(d => this.yScale(regression(d.population_density)))
+            )
 
-        //this.x_axis.tickValues(this.selected_chart.data.map(d => d.event))
-        this.x_axis_wrapper.transition().duration(500).call(this.x_axis)
-        this.y_axis_wrapper.transition().duration(500).call(this.y_axis)
-
-        this.x_axis_wrapper.selectAll('text')
-            .attr('transform', 'rotate(-45)')
-            .attr('text-anchor', 'end')
-
-
-        let bars = this.svg.selectAll('.bar')
-            .data(this.selected_chart.data)
+        let points = this.population.svg.selectAll('.point')
+            .data(this.data)
             .join(
-                enter => enter.append('rect')
-                    .attr('class', 'bar')
-                    .attr('x', d => this.x_axis_scale(d.id))
-                    .attr('y', d => this.y_axis_scale(d.data))
-                    .attr('width', this.x_axis_scale.bandwidth())
-                    .attr('height', d =>  this.y_axis_scale(0) - this.y_axis_scale(d.data))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
-                    .attr('fill', 'steelblue'),
-                update => update.transition().duration(500)
-                    .attr('x', d => this.x_axis_scale(d.id))
-                    .attr('y', d => this.y_axis_scale(d.data))
-                    .attr('width', this.x_axis_scale.bandwidth())
-                    .attr('height', d => this.DIMENSIONS.drawable_height - this.y_axis_scale(d.data))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
-                    .attr('fill', 'steelblue'),
+                enter => enter.append('circle')
+                    .attr('class', 'point')
+                    .attr('r', 5)
+                    .attr('cx', d => this.population.xScale(d.population_density))
+                    .attr('cy', d => this.yScale(d.score))
+                    .attr('fill', 'black')
+                    .attr('opacity', 0.5)
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                update => update,
                 exit => exit.remove()
+
             )
 
     }
 
     getData() {
-        switch(this.selected_chart.choice) {
+        switch (this.selected_chart.choice) {
             case 'fastest':
                 this.selected_chart.y_label = 'Average Pace (min/mile)'
                 this.selected_chart.title = 'Average Pace of top 10 Finishers'
                 this.GAS.raceData.sort((a, b) => a.average_pace - b.average_pace)
                 this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
-                                                return {
-                                                    id: d.race_year_id,
-                                                    event: d.event,
-                                                    data: d.average_pace/60
-                                                }
-                                            })
+                    return {
+                        id: d.race_year_id,
+                        event: d.event,
+                        data: d.average_pace / 60
+                    }
+                })
                 break;
             case 'slowest':
                 this.selected_chart.y_label = 'Average Pace (min/mile)'
                 this.selected_chart.title = 'Average Pace of top 10 Finishers'
                 this.GAS.raceData.sort((a, b) => b.average_pace - a.average_pace)
                 this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
-                                                return {
-                                                    id: d.race_year_id,
-                                                    event: d.event,
-                                                    data: d.average_pace/60
-                                                }
-                                            })
+                    return {
+                        id: d.race_year_id,
+                        event: d.event,
+                        data: d.average_pace / 60
+                    }
+                })
 
                 break;
             case 'hardest':
@@ -150,12 +210,12 @@ class DemographicsChart {
                 this.selected_chart.title = 'Total Elevation Gain'
                 this.GAS.raceData.sort((a, b) => b.elevation_gain - a.elevation_gain)
                 this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
-                                                return {
-                                                    id: d.race_year_id,
-                                                    event: d.event,
-                                                    data: d.elevation_gain
-                                                }
-                                            })
+                    return {
+                        id: d.race_year_id,
+                        event: d.event,
+                        data: d.elevation_gain
+                    }
+                })
                 break;
             case 'easiest':
                 this.selected_chart.y_label = 'Elevation Gain (ft)'
@@ -172,24 +232,24 @@ class DemographicsChart {
                     }
                 })
                 this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
-                                                return {
-                                                    id: d.race_year_id,
-                                                    event: d.event,
-                                                    data: d.elevation_gain
-                                                }
-                                            })
+                    return {
+                        id: d.race_year_id,
+                        event: d.event,
+                        data: d.elevation_gain
+                    }
+                })
                 break;
             case 'biggest':
                 this.selected_chart.y_label = 'Number of Finishers'
                 this.selected_chart.title = 'Number of Finishers'
                 this.GAS.raceData.sort((a, b) => b.num_finishers - a.num_finishers)
                 this.selected_chart.data = this.GAS.raceData.slice(0, 10).map(d => {
-                                                return {
-                                                    id: d.race_year_id,
-                                                    event: d.event,
-                                                    data: d.num_finishers
-                                                }
-                                            })
+                    return {
+                        id: d.race_year_id,
+                        event: d.event,
+                        data: d.num_finishers
+                    }
+                })
                 break;
             default:
 
@@ -215,62 +275,14 @@ class DemographicsChart {
 
 
     processData() {
-        console.log('races')
-        console.log(this.races)
-        console.log('ranks')
-        console.log(this.ranks)
-
-
-        this.GAS.raceData.map(race => {
-            let race_participants = this.GAS.rankingData.filter(rank => rank.race_year_id === race.race_year_id);
-            race.num_finishers = race_participants.filter(p => p.rank !== 'NA').length;
-            race.num_men = race_participants.filter(p => p.gender === 'M').length;
-            race.num_women = race_participants.filter(p => p.gender === 'W').length;
-
-
-            /**
-             * Find raw percentage of top 50 winners who are male and female
-             */
-            let denom = d3.min([race.num_finishers, N_FINISHERS])
-
-            race.men_winners = race_participants.filter(p => {
-                return p.gender === "M" && p.rank <= denom
-            })
-            race.women_winners = race_participants.filter(p => {
-                return p.gender === "W" && p.rank <= denom
-            })
-            // recalcualte the denominator since some of the race datasets have
-            // weird ties and can end up with more than N people finishing in the top N spots
-            denom = race.men_winners.length + race.women_winners.length
-            race.percent_men_winners = race.men_winners.length / denom;
-            race.percent_women_winners = race.women_winners.length / denom;
-
-            /**
-             * Find normalized percentage of top N finishers
-             */
-            race.men_liklihood_of_winning = race.men_winners.length / race.num_men;
-            race.women_liklihood_of_winning = race.women_winners.length / race.num_women;
-            let sum = race.men_liklihood_of_winning + race.women_liklihood_of_winning
-
-            race.norm_men_liklihood = race.men_liklihood_of_winning / sum;
-            race.norm_women_liklihood = race.women_liklihood_of_winning / sum;
-
-
-            /**
-             * Find average pace of top N finishers
-             */
-            let distance = 100
-            // average pace in seconds per mile
-            race.average_pace = d3.sum(race.men_winners, d => d.time_in_seconds / distance) + 
-            d3.sum(race.women_winners, d => d.time_in_seconds / distance) / denom
-            
-            
-
-
-
+        d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
+            this.data = data;
+            console.log(this.data)
         })
 
 
-        console.log(this.races)
+
+
+
     }
 }
