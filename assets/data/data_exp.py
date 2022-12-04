@@ -156,6 +156,7 @@ def plot_scores_vs_health_care():
     #calculate equation for trendline
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
+    print(p)
     plt.plot(x, p(x))
 
     plt.show()
@@ -214,6 +215,7 @@ def plot_scores_vs_cost_of_living():
     #calculate equation for trendline
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
+    print(p)
     plt.plot(x, p(x))
 
     plt.show()
@@ -264,9 +266,9 @@ def save_data():
             if c in pop_data and c in health_data and c in cost_data and c in elevation_data:
                 writer.writerow([c, f'{norm_scores[c]:.2f}', pop_data[c]['Density pop./km2'], health_data[c]['Health Care Index'], cost_data[c]['Cost of Living Index'], elevation_data[c]['Elevation'].replace(',', '')])
 
-plot_scores_vs_population_density() # yes
+#plot_scores_vs_population_density() # yes
 #plot_scores_vs_health_care() # yes
 #plot_scores_vs_land_area()
 #plot_scores_vs_cost_of_living() # yes
-#plot_scores_vs_elevation() # yes
+plot_scores_vs_elevation() # yes
 #save_data()

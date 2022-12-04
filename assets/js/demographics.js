@@ -4,10 +4,18 @@ class DemographicsChart {
 
         this.selected_points = [];
 
-        this.population = {}
-        this.health = {}
-        this.living = {}
-        this.elevation = {}
+        this.population = {
+            regression: x => -0.01224*x + 11.78
+        }
+        this.health = {
+            regression: x => -0.1233*x + 18.6
+        }
+        this.living = {
+            regression: x => -0.02729*x + 11.77
+        }
+        this.elevation = {
+            regression: x => -0.001065*x + 10.8
+        }
 
         d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
             this.data = data;
@@ -32,9 +40,9 @@ class DemographicsChart {
         window.scrollTo(0, 100)
 
         this.population.svg = d3.select('#demographics-chart-1 svg')
-        this.health.svg = this.svgs.filter('#demographics-chart-2')
-        this.living.svg = this.svgs.filter('#demographics-chart-3')
-        this.elevation.svg = this.svgs.filter('#demographics-chart-4')
+        this.health.svg = d3.select('#demographics-chart-2 svg')
+        this.living.svg = d3.select('#demographics-chart-3 svg')
+        this.elevation.svg = d3.select('#demographics-chart-4 svg')
 
         this.DIMENSIONS = {
             margin_top: 5,
@@ -56,11 +64,27 @@ class DemographicsChart {
         this.yScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.score), d3.max(this.data, d => d.score)])
             .range([this.DIMENSIONS.drawable_height, 0])
+        this.yAxis = d3.axisLeft(this.yScale)
+
         this.population.xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.population_density), d3.max(this.data, d => d.population_density)])
             .range([0, this.DIMENSIONS.drawable_width])
-        this.yAxis = d3.axisLeft(this.yScale)
         this.population.xAxis = d3.axisBottom(this.population.xScale)
+
+        this.health.xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.health_care), d3.max(this.data, d => d.health_care)])
+            .range([0, this.DIMENSIONS.drawable_width])
+        this.health.xAxis = d3.axisBottom(this.health.xScale)
+
+        this.living.xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.cost_of_living), d3.max(this.data, d => d.cost_of_living)])
+            .range([0, this.DIMENSIONS.drawable_width])
+        this.living.xAxis = d3.axisBottom(this.living.xScale)
+
+        this.elevation.xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.elevation), d3.max(this.data, d => d.elevation)])
+            .range([0, this.DIMENSIONS.drawable_width])
+        this.elevation.xAxis = d3.axisBottom(this.elevation.xScale)
 
     }
 
@@ -75,24 +99,33 @@ class DemographicsChart {
             .attr('class', 'y-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
             .call(this.yAxis)
+
         this.health.xAxisWrapper = this.health.svg.append('g')
             .attr('class', 'x-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+            .call(this.health.xAxis)
         this.health.yAxisWrapper = this.health.svg.append('g')
             .attr('class', 'y-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .call(this.yAxis)
+
         this.living.xAxisWrapper = this.living.svg.append('g')
             .attr('class', 'x-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+            .call(this.living.xAxis)
         this.living.yAxisWrapper = this.living.svg.append('g')
             .attr('class', 'y-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .call(this.yAxis)
+
         this.elevation.xAxisWrapper = this.elevation.svg.append('g')
             .attr('class', 'x-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom})`)
+            .call(this.elevation.xAxis)
         this.elevation.yAxisWrapper = this.elevation.svg.append('g')
             .attr('class', 'y-axis')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .call(this.yAxis)
     }
 
 
@@ -131,7 +164,7 @@ class DemographicsChart {
             .attr('class', 'axis-label')
             .attr('transform', `translate(${this.DIMENSIONS.width / 2}, ${this.DIMENSIONS.height - 10})`)
             .attr('text-anchor', 'middle')
-            .text('Quality of Life Index')
+            .text('Cost of Living Index')
 
         this.elevation.y_label = this.elevation.svg.append('text')
             .attr('class', 'axis-label')
@@ -148,19 +181,16 @@ class DemographicsChart {
 
 
     update() {
-
-        let regression = x => -0.01224*x + 11.78
-            
         this.population.svg.append('path')
             .datum(this.data)
             .attr('class', 'regression')
             .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
             .attr('d', d3.line()
                 .x(d => this.population.xScale(d.population_density))
-                .y(d => this.yScale(regression(d.population_density)))
+                .y(d => this.yScale(this.population.regression(d.population_density)))
             )
 
-        let points = this.population.svg.selectAll('.point')
+        this.population.svg.selectAll('.point')
             .data(this.data)
             .join(
                 enter => enter.append('circle')
@@ -168,13 +198,78 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.population.xScale(d.population_density))
                     .attr('cy', d => this.yScale(d.score))
-                    .attr('fill', 'black')
-                    .attr('opacity', 0.5)
                     .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
                 update => update,
                 exit => exit.remove()
 
             )
+        
+        this.health.svg.append('path')
+            .datum(this.data)
+            .attr('class', 'regression')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .attr('d', d3.line()
+                .x(d => this.health.xScale(d.health_care))
+                .y(d => this.yScale(this.health.regression(d.health_care)))
+            )
+
+        this.health.svg.selectAll('.point')
+            .data(this.data)
+            .join(
+                enter => enter.append('circle')
+                    .attr('class', 'point')
+                    .attr('r', 5)
+                    .attr('cx', d => this.health.xScale(d.health_care))
+                    .attr('cy', d => this.yScale(d.score))
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                update => update,
+                exit => exit.remove()
+            )
+
+        this.living.svg.append('path')
+            .datum(this.data)
+            .attr('class', 'regression')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .attr('d', d3.line()
+                .x(d => this.living.xScale(d.cost_of_living))
+                .y(d => this.yScale(this.living.regression(d.cost_of_living)))
+            )
+
+        this.living.svg.selectAll('.point')
+            .data(this.data)
+            .join(
+                enter => enter.append('circle')
+                    .attr('class', 'point')
+                    .attr('r', 5)
+                    .attr('cx', d => this.living.xScale(d.cost_of_living))
+                    .attr('cy', d => this.yScale(d.score))
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                update => update,
+                exit => exit.remove()
+            )
+
+        this.elevation.svg.append('path')
+            .datum(this.data)
+            .attr('class', 'regression')
+            .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+            .attr('d', d3.line()
+                .x(d => this.elevation.xScale(d.elevation))
+                .y(d => this.yScale(this.elevation.regression(d.elevation)))
+            )
+
+        this.elevation.svg.selectAll('.point')
+            .data(this.data)
+            .join(
+                enter => enter.append('circle')
+                    .attr('class', 'point')
+                    .attr('r', 5)
+                    .attr('cx', d => this.elevation.xScale(d.elevation))
+                    .attr('cy', d => this.yScale(d.score))
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                update => update,
+                exit => exit.remove()
+            )
+            
 
     }
 

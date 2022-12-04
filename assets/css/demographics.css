@@ -2,3 +2,10 @@
     stroke: black;
     stroke-width: 1px;
 }
+
+.point {
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+    opacity: 0.5;
+}
