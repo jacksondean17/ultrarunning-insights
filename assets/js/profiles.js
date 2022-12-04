@@ -5,14 +5,24 @@ const CHART_WIDTH = 700;
 
 class ProfilesLineChart {
   constructor(globalApplicationState) {
+
+    this.svg = d3.select('#profiles-chart');
+    this.DIMENSIONS = {
+      width: this.svg.node().getBoundingClientRect().width,
+      height: this.svg.node().getBoundingClientRect().height,
+      margin_top: 20,
+      margin_bottom: 50,
+      margin_left: 50,
+      margin_right: 20
+    }
     this.xScale = null;
     this.yScale = null;
     this.yAxisPadding = 80;
     this.xAxisPadding = 50;
+    this.DIMENSIONS.drawable_width = this.DIMENSIONS.width - this.DIMENSIONS.margin_left - this.DIMENSIONS.margin_right;
+    this.DIMENSIONS.drawable_height = this.DIMENSIONS.height - this.DIMENSIONS.margin_top - this.DIMENSIONS.margin_bottom;
 
-    this.svg = d3.select('#profiles-div').append('svg:svg')
-      .attr('width', CHART_WIDTH)
-      .attr('height', CHART_HEIGHT);
+
     this.svg.append('g').attr('id', 'x-axis');
     this.svg.append('g').attr('id', 'y-axis');
     this.svg.append('g').attr('id', 'lines')
@@ -25,16 +35,20 @@ class ProfilesLineChart {
     this.xScale = d3.scaleLinear()
       .domain([0, 170])
       // start is somewhere between 0 and yAxis padding
-      .range([this.xAxisPadding, CHART_WIDTH - this.yAxisPadding]);
-    this.svg.select('#x-axis')
-      .append('g')
-      .attr('transform', `translate(${this.xAxisPadding}, ${CHART_HEIGHT / 2})`)
-      .call(d3.axisBottom(this.xScale));
+      .range([this.DIMENSIONS.margin_left, this.DIMENSIONS.width - this.yAxisPadding]);
+
+
 
     this.yScale = d3.scaleLinear()
-      .domain([-800, 800])
+      .domain([-800, 2500])
       // add in some padding
-      .range([CHART_HEIGHT - MARGIN.bottom, MARGIN.top]);
+      .range([this.DIMENSIONS.height - this.DIMENSIONS.margin_bottom, this.DIMENSIONS.margin_top]);
+    // .range([this.drawable_height, 0]);
+    //draw x axis
+    this.svg.select('#x-axis')
+      .append('g')
+      .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.yScale(0)})`)
+      .call(d3.axisBottom(this.xScale));
 
     this.svg.select('#y-axis')
       .append('g')
@@ -59,70 +73,120 @@ class ProfilesLineChart {
 
     // interaction handler from hw4 solution
     // Add an interaction for the x position over the lines
-    // this.svg.on('mousemove', (event) => {
-    //     const svgEdge = this.svg.node().getBoundingClientRect().x;
-    //     const distanceFromSVGEdge = event.clientX - svgEdge;
+    this.svg.on('mousemove', (event) => {
+      const svgEdge = this.svg.node().getBoundingClientRect().x;
+      const distanceFromSVGEdge = event.clientX - svgEdge;
 
-    //     if (distanceFromSVGEdge > this.yAxisPadding) {
-    //         // Set the line position
-    //         this.svg
-    //             .select('#overlay')
-    //             .select('line')
-    //             .attr('stroke', 'black')
-    //             .attr('x1', distanceFromSVGEdge)
-    //             .attr('x2', distanceFromSVGEdge)
-    //             .attr('y1', this.height - this.xAxisPadding)
-    //             .attr('y2', 0);
-    //     }
-    //     // Find the relevant data (by date and location)
-    //     const dateHovered = this.xAxis.invert(distanceFromSVGEdge - this.yAxisPadding).toISOString().substring(0, 10);
-    //     const filteredData = globalApplicationState.covidData
-    //         .filter((row) => (
-    //             row.date === dateHovered
-    //             && (
-    //                 (globalApplicationState.selectedLocations.length > 0 &&
-    //                     globalApplicationState.selectedLocations.includes(row.iso_code))
-    //                 ||
-    //                 (globalApplicationState.selectedLocations.length === 0 &&
-    //                     row.iso_code.includes('OWID'))
-    //             )
-    //         ))
-    //         .sort((rowA, rowB) => rowB.total_cases_per_million - rowA.total_cases_per_million);
-    //     // Add text to the SVG
-    //     this.svg
-    //         .select('#overlay')
-    //         .selectAll('text')
-    //         .data(filteredData)
-    //         .join('text')
-    //         .text((d) => `${d.location}, ${d3.format(".2s")(d.total_cases_per_million)}`)
-    //         // .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 200 : distanceFromSVGEdge + 5)
-    //         .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 5 : distanceFromSVGEdge + 5)
-    //         .attr('text-anchor', distanceFromSVGEdge > 500 ? 'end' : 'start')
-    //         .attr('y', (d, i) => (i + 1) * 20)
-    //         .attr('fill', (d) => this.colorScale(d.iso_code));
+      if (distanceFromSVGEdge > this.yAxisPadding) {
+        // Set the line position
+        this.svg
+          .select('#overlay')
+          .select('line')
+          .attr('stroke', 'black')
+          .attr('x1', distanceFromSVGEdge)
+          .attr('x2', distanceFromSVGEdge)
+          .attr('y1', this.DIMENSIONS.height - this.xAxisPadding)
+          .attr('y2', 0);
+      }
+      // Find the relevant data (by date and location)
+      // const dateHovered = this.xAxis.invert(distanceFromSVGEdge - this.yAxisPadding).toISOString().substring(0, 10);
+      // const filteredData = globalApplicationState.covidData
+      //   .filter((row) => (
+      //     row.date === dateHovered
+      //     && (
+      //       (globalApplicationState.selectedLocations.length > 0 &&
+      //         globalApplicationState.selectedLocations.includes(row.iso_code))
+      //       ||
+      //       (globalApplicationState.selectedLocations.length === 0 &&
+      //         row.iso_code.includes('OWID'))
+      //     )
+      //   ))
+      //   .sort((rowA, rowB) => rowB.total_cases_per_million - rowA.total_cases_per_million);
+      // Add text to the SVG
+      // this.svg
+      //   .select('#overlay')
+      //   .selectAll('text')
+      //   .data(filteredData)
+      //   .join('text')
+      //   .text((d) => `${d.location}, ${d3.format(".2s")(d.total_cases_per_million)}`)
+      //   // .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 200 : distanceFromSVGEdge + 5)
+      //   .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 5 : distanceFromSVGEdge + 5)
+      //   .attr('text-anchor', distanceFromSVGEdge > 500 ? 'end' : 'start')
+      //   .attr('y', (d, i) => (i + 1) * 20)
+      //   .attr('fill', (d) => this.colorScale(d.iso_code));
 
-    // });
+    });
   }
 
 
 
   drawAll(profiles) {
-    console.log("drawAll profiles", profiles);
-    this.svg
-      .select('#lines')
-      .selectAll('.line')
-      .data(profiles)
-      .join('path')
-      .attr('fill', 'none')
-      .attr('stroke', ([id, gpx]) => this.colorScale(id))
-      .attr('stroke-width', 1)
-      .attr('d', ([id, gpx]) => {
-        d3.line()
-          .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
-          .x((d) => this.xScale(d.dist) + this.xAxisPadding)
-          .y((d) => this.yScale(d.ele))
-          (gpx);
-      });
+    profiles.forEach((entry, i) => {
+      console.log(profiles[i].gpx);
+      let color = this.colorScale(entry.id);
+      this.svg.select('#lines')
+        .append('path')
+        .datum(profiles[i].gpx.filter((d) => d.ele !== null && d.dist !== null))
+        .attr('class', 'line')
+        .attr('id', profiles[i].id)
+        .attr('opacity', 0.5)
+        .attr('d', this.lineGenerator)
+        .attr('stroke', color)
+        .attr('fill', 'none')
+    });
+
+    // this.svg
+    //   .select('#lines')
+    //   .selectAll('.line')
+    //   .data(sumstat)
+    //   .attr('fill', 'none')
+    //   .attr('stroke', ([id, gpx]) => this.colorScale(id))
+
+    //   .attr('stroke-width', 1)
+    //   .attr('d', ([id, gpx]) => {
+    //     d3.line()
+    //       .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
+    //       .x((d) => this.xScale(d.dist) + this.xAxisPadding)
+    //       .y((d) => this.yScale(d.ele))
+    //       (gpx);
+    //   });
+    // .join(
+    //   enter => {
+    //     let line = enter.append('path')
+    //       .attr('fill', 'none')
+    //       .attr('stroke-width', 1)
+    //       // .data([{ dist: 0, ele: 0 }, { dist: 160, ele: 0 }])
+    //       // .attr('d', this.lineGenerator)
+    //       //.transition()
+    //       .attr('stroke', ([id, gpx]) => this.colorScale(id))
+    //       //.attr('d', this.lineGenerator)
+    //       .attr('d', ([id, gpx]) => {
+    //         d3.line()
+    //           .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
+    //           .x((d) => this.xScale(d.dist) + this.xAxisPadding)
+    //           .y((d) => this.yScale(d.ele))
+    //           (gpx);
+    //       })
+    //   },
+    //   update => {
+    //     let line = update.append('path')
+    //     .attr('fill', 'none')
+    //     .attr('stroke-width', 1)
+    //     // .data([{ dist: 0, ele: 0 }, { dist: 160, ele: 0 }])
+    //     // .attr('d', this.lineGenerator)
+    //     //.transition()
+    //     .attr('stroke', ([id, gpx]) => this.colorScale(id))
+    //     //.attr('d', this.lineGenerator)
+    //     .attr('d', ([id, gpx]) => {
+    //       d3.line()
+    //         .defined(((d, i) => !isNaN(d.dist) && !isNaN(d.ele)))
+    //         .x((d) => this.xScale(d.dist) + this.xAxisPadding)
+    //         .y((d) => this.yScale(d.ele))
+    //         (gpx);
+    //     })
+    //   },
+    //   exit => exit.remove()
+    // );
   }
 
   addLine(profile, race_year_id) {
@@ -179,46 +243,39 @@ class ProfilesLineChart {
   }
 
   // process gpx data for a single profile
-  static process(gpx) {
+  static process(gpx, cm) {
     console.log('processing gpx');
-    let tracks = gpx.querySelector("trkpt");
-    let lon1 = +tracks.getAttribute("lon");
-    let lat1 = +tracks.getAttribute("lat");
+    
+    try {
 
-    let startingEle = +tracks.querySelector("ele").textContent;
-    let totalDist = 0;
-    // let points = [].reduce(function (result, element) {
-    //   if (typeof element !== "undefined") {
-    //     gpx.querySelectorAll("trkpt"), function (d) {
-    //       //   // get distance from last point
-    //       let lat2 = +d.getAttribute("lat");
-    //       let lon2 = +d.getAttribute("lon");
-    //       totalDist = totalDist + ProfilesLineChart.distance2(lat1, lon1, lat2, lon2)
-    //       lon1 = lon2; lat1 = lat2;
-    //       result.push({
-    //         dist: totalDist,
-    //         ele: +d.querySelector("ele").textContent - startingEle
-    //       });
-    //     }
-    //   }
-    //   return result;
-    // }, []);
-    let points = [].map.call(gpx.querySelectorAll("trkpt"), function (d) {
-      // get distance from last point
-      let lat2 = +d.getAttribute("lat");
-      let lon2 = +d.getAttribute("lon");
-      totalDist = totalDist + ProfilesLineChart.distance2(lat1, lon1, lat2, lon2)
-      lon1 = lon2; lat1 = lat2;
-      if (typeof d.querySelector("ele") == null ||
-        d.querySelector("ele") == null) {
-        return null;
-      }
-      return {
-        dist: totalDist,
-        ele: +d.querySelector("ele").textContent - startingEle
-      }
-    });
-    return points;
+      let tracks = gpx.querySelector("trkpt");
+      let lon1 = +tracks.getAttribute("lon");
+      let lat1 = +tracks.getAttribute("lat");
+
+      let startingEle = +tracks.querySelector("ele").textContent;
+      let totalDist = 0;
+      let points = [].map.call(gpx.querySelectorAll("trkpt"), function (d) {
+        // get distance from last point
+        let lat2 = +d.getAttribute("lat");
+        let lon2 = +d.getAttribute("lon");
+        totalDist = totalDist + ProfilesLineChart.distance2(lat1, lon1, lat2, lon2)
+        lon1 = lon2; lat1 = lat2;
+        if (typeof d.querySelector("ele") == null ||
+          d.querySelector("ele") == null) {
+          return { dist: null, ele: null };
+        }
+        return {
+          dist: totalDist,
+          ele: +d.querySelector("ele").textContent - startingEle
+        }
+      });
+      return points;
+    }
+    catch (e) {
+      console.log(e);
+      console.log(cm);
+      return [];
+    }
   }
 
   static distance2(lat1, lon1, lat2, lon2) {

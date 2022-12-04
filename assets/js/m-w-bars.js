@@ -186,10 +186,10 @@ class MvWBarChart {
     }
 
     processData() {
-        console.log('races')
-        console.log(this.races)
-        console.log('ranks')
-        console.log(this.ranks)
+        // console.log('races')
+        // console.log(this.races)
+        // console.log('ranks')
+        // console.log(this.ranks)
 
 
         this.races.map(race => {
@@ -242,7 +242,7 @@ class MvWBarChart {
         })
 
 
-        console.log(this.races)
+        // console.log(this.races)
     }
 
     addEventListeners() {
