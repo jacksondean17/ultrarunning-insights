@@ -2,7 +2,7 @@ class DemographicsChart {
     constructor(globalApplicationState) {
         this.GAS = globalApplicationState;
 
-        this.selected_points = [];
+        this.selected_countries = [];
 
         this.population = {
             regression: x => -0.01224 * x + 11.78
@@ -58,7 +58,65 @@ class DemographicsChart {
         this.createScales()
         this.createAxisLabels()
         this.createAxes()
+        this.createBrushing()
         this.createTooltips()
+    }
+
+    createBrushing() {
+        this.brush = d3.brush()
+            .on('brush', this.handleBrush.bind(this))
+            .on('end', this.handleBrushEnd.bind(this))
+
+        this.svgs.call(this.brush)
+    }
+
+    handleBrush(e) {
+        this.brush_extent = e.selection
+        console.log(this.brush_extent)
+        let points = d3.select(e.sourceEvent.target.parentElement).selectAll('.point')
+        this.selected_countries = this.findPointsInBrush(points)
+
+        this.svgs.selectAll('.point').classed('un-brushed', d => !this.selected_countries.has(d))
+
+    }
+
+    findPointsInBrush(points) {
+        let selected_countries = new Set()
+        points.each((d, i, n) => {
+            let x = d3.select(n[i]).attr('cx')
+            let y = d3.select(n[i]).attr('cy')
+            if (this.isInBrush({ xPos: x, yPos: y })) {
+                selected_countries.add(d)
+            }
+        })
+        return selected_countries
+    }
+
+
+
+    isInBrush(d) {
+        let retVal = this.brush_extent &&
+            this.brush_extent[0][0] <= d.xPos &&
+            this.brush_extent[1][0] >= d.xPos &&
+            this.brush_extent[0][1] <= d.yPos &&
+            this.brush_extent[1][1] >= d.yPos;
+
+
+//        if (retVal) {
+//            this.selected_points.push(d);
+//        }
+        return retVal;
+    }
+
+
+
+    handleBrushEnd(e) {
+        this.brush_extent = e.selection;
+        if (this.brush_extent === null) {
+            this.svgs.selectAll('.point')
+                .classed('un-brushed', false)
+
+        }
     }
 
     createTooltips() {
@@ -68,16 +126,18 @@ class DemographicsChart {
         let tooltips = this.svgs.append('g')
 
         tooltips.attr('class', 'tooltip')
-            .style('opacity', 1)
+            .style('opacity', 0)
             .append('rect')
             .attr('width', tooltip_width)
             .attr('height', tooltip_height)
             .attr('rx', 5)
+            .attr('x', 0)
+            .attr('y', 0)
 
         tooltips.append('text')
             .classed('tooltip-country', true)
             .attr('x', tooltip_width / 2)
-            .attr('y', 15)
+            .attr('y', 15)            
             .text('Country')
             .attr('text-anchor', 'middle')
 
@@ -258,9 +318,9 @@ class DemographicsChart {
                 enter => enter.append('circle')
                     .attr('class', 'point')
                     .attr('r', 5)
-                    .attr('cx', d => this.population.xScale(d.population_density))
-                    .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .attr('cx', d => this.population.xScale(d.population_density) + this.DIMENSIONS.margin_left)
+                    .attr('cy', d => this.yScale(d.score) + this.DIMENSIONS.margin_top)
+                    //.attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
                     .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
@@ -350,7 +410,7 @@ class DemographicsChart {
 
         let cx = e.target.cx.baseVal.value
         let cy = e.target.cy.baseVal.value
-        let x = cx + 60
+        let x = cx + 10
         let y = cy + 10
         if (cx > this.DIMENSIONS.width / 2) {
             x -= 220
@@ -361,12 +421,14 @@ class DemographicsChart {
 
         tooltip.attr('transform', `translate(${x}, ${y})`)
             .style('opacity', 1)
+            .attr('x', 0)
+            .attr('y', 0)
         
         tooltip.raise()
 
         this.updateTooltips(d)
 
-        console.log(d)
+        console.log(e.target)
     }
 
 

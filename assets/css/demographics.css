@@ -17,10 +17,19 @@
     opacity: 1;
 }
 
+.un-brushed {
+    opacity: 0.1;
+}
+
 .tooltip rect {
     fill: white;
     stroke: black;
     stroke-width: 1px;
+    opacity: 0.8;
+}
+
+.tooltip text {
+    fill: black;
 }
 
 .tooltip .tooltip-country {
