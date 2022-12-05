@@ -6,6 +6,8 @@ const CHART_WIDTH = 700;
 class ProfilesLineChart {
   constructor(globalApplicationState) {
 
+    this.GAS = globalApplicationState;
+
     this.svg = d3.select('#profiles-chart');
     this.DIMENSIONS = {
       width: this.svg.node().getBoundingClientRect().width,
@@ -58,7 +60,7 @@ class ProfilesLineChart {
     // Append y axis text
     this.svg.select('#y-axis')
       .append('text')
-      .text('Change in Elevation')
+      .text('Change in Elevation (m)')
       .attr('x', -280)
       .attr('y', 20)
       .attr('transform', 'rotate(-90)');
@@ -69,53 +71,123 @@ class ProfilesLineChart {
       .y((d) => this.yScale(d.ele));
 
 
+    this.createTooltip();
     this.drawAll(globalApplicationState.profileData);
 
-    // interaction handler from hw4 solution
-    // Add an interaction for the x position over the lines
-    this.svg.on('mousemove', (event) => {
-      const svgEdge = this.svg.node().getBoundingClientRect().x;
-      const distanceFromSVGEdge = event.clientX - svgEdge;
 
-      if (distanceFromSVGEdge > this.yAxisPadding) {
-        // Set the line position
-        this.svg
-          .select('#overlay')
-          .select('line')
-          .attr('stroke', 'black')
-          .attr('x1', distanceFromSVGEdge)
-          .attr('x2', distanceFromSVGEdge)
-          .attr('y1', this.DIMENSIONS.height - this.xAxisPadding)
-          .attr('y2', 0);
-      }
-      // Find the relevant data (by date and location)
-      // const dateHovered = this.xAxis.invert(distanceFromSVGEdge - this.yAxisPadding).toISOString().substring(0, 10);
-      // const filteredData = globalApplicationState.covidData
-      //   .filter((row) => (
-      //     row.date === dateHovered
-      //     && (
-      //       (globalApplicationState.selectedLocations.length > 0 &&
-      //         globalApplicationState.selectedLocations.includes(row.iso_code))
-      //       ||
-      //       (globalApplicationState.selectedLocations.length === 0 &&
-      //         row.iso_code.includes('OWID'))
-      //     )
-      //   ))
-      //   .sort((rowA, rowB) => rowB.total_cases_per_million - rowA.total_cases_per_million);
-      // Add text to the SVG
-      // this.svg
-      //   .select('#overlay')
-      //   .selectAll('text')
-      //   .data(filteredData)
-      //   .join('text')
-      //   .text((d) => `${d.location}, ${d3.format(".2s")(d.total_cases_per_million)}`)
-      //   // .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 200 : distanceFromSVGEdge + 5)
-      //   .attr('x', distanceFromSVGEdge > 500 ? distanceFromSVGEdge - 5 : distanceFromSVGEdge + 5)
-      //   .attr('text-anchor', distanceFromSVGEdge > 500 ? 'end' : 'start')
-      //   .attr('y', (d, i) => (i + 1) * 20)
-      //   .attr('fill', (d) => this.colorScale(d.iso_code));
+  }
 
-    });
+  createTooltip() {
+    this.tooltip = this.svg.append('g')
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+
+    this.DIMENSIONS.tooltip_width = 200;
+    this.DIMENSIONS.tooltip_height = 100;
+
+    this.tooltip.append('rect')
+      .attr('width', this.DIMENSIONS.tooltip_width)
+      .attr('height', this.DIMENSIONS.tooltip_height)
+      .attr('fill', 'white')
+      .attr('rx', 5)
+      .style('opacity', 0.8);
+
+    this.tooltip.append('text')
+      .attr('id', 'tooltip-race-name')
+      .attr('x', 5)
+      .attr('y', 15)
+
+    this.tooltip.append('text')
+      .classed('tooltip-data-label', true)
+      .attr('x', 5)
+      .attr('y', 30)
+      .text('Country:');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data', true)
+      .attr('id', 'tooltip-country')
+      .attr('x', this.DIMENSIONS.tooltip_width - 5)
+      .attr('y', 30)
+      .attr('text-anchor', 'end');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data-label', true)
+      .attr('x', 5)
+      .attr('y', 45)
+      .text('Date:');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data', true)
+      .attr('id', 'tooltip-date')
+      .attr('x', this.DIMENSIONS.tooltip_width - 5)
+      .attr('y', 45)
+      .attr('text-anchor', 'end');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data-label', true)
+      .attr('x', 5)
+      .attr('y', 60)
+      .text('Gain:');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data', true)
+      .attr('id', 'tooltip-gain')
+      .attr('x', this.DIMENSIONS.tooltip_width - 5)
+      .attr('y', 60)
+      .attr('text-anchor', 'end');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data-label', true)
+      .attr('x', 5)
+      .attr('y', 75)
+      .text('Loss:');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data', true)
+      .attr('id', 'tooltip-loss')
+      .attr('x', this.DIMENSIONS.tooltip_width - 5)
+      .attr('y', 75)
+      .attr('text-anchor', 'end');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data-label', true)
+      .attr('x', 5)
+      .attr('y', 90)
+      .text('Participants:');
+
+    this.tooltip.append('text')
+      .classed('tooltip-data', true)
+      .attr('id', 'tooltip-participants')
+      .attr('x', this.DIMENSIONS.tooltip_width - 5)
+      .attr('y', 90)
+      .attr('text-anchor', 'end');
+  }
+
+  updateTooltip(d) {
+    this.tooltip
+      .select('#tooltip-race-name')
+      .text(d.event);
+
+    this.tooltip
+      .select('#tooltip-country')
+      .text(d.country);
+
+    this.tooltip
+      .select('#tooltip-date')
+      .text(d.date);
+
+    this.tooltip
+      .select('#tooltip-gain')
+      .text(d.elevation_gain);
+
+    this.tooltip
+      .select('#tooltip-loss')
+      .text(d.elevation_loss);
+
+    this.tooltip
+      .select('#tooltip-participants')
+      .text(d.participants);
+
   }
 
 
@@ -133,8 +205,49 @@ class ProfilesLineChart {
         .attr('d', this.lineGenerator)
         .attr('stroke', color)
         .attr('fill', 'none')
+        .on('mouseover', this.hoverProfile.bind(this))
+        .on('mouseout', this.unhoverProfile.bind(this))
+        .on('mousemove', this.moveProfile.bind(this))
+        .on('click', this.clickProfile.bind(this));
+
     });
   }
+
+  hoverProfile(event, d) {
+    console.log('hovering');
+    console.log(d);
+    d3.select(event.currentTarget)
+      .attr('opacity', 1);
+
+    this.tooltip
+      .style('opacity', 1)
+      .attr('transform', `translate(${event.pageX + 10},${event.pageY - 10})`);
+
+    this.updateTooltip(this.GAS.raceData.find(r => r.race_year_id === parseInt(event.target.id)));
+  }
+
+  moveProfile(event, d) {
+    this.tooltip
+      .attr('transform', `translate(${event.pageX - this.svg.node().getBoundingClientRect().x + 10},${event.pageY - this.svg.node().getBoundingClientRect().y - 10})`);
+  }
+
+  unhoverProfile(event, d) {
+    console.log('unhovering');
+    console.log(d);
+    d3.select(event.currentTarget)
+      .attr('opacity', 0.5);
+
+    this.tooltip
+      .style('opacity', 0);
+  }
+
+  clickProfile(event, d) {
+    alert('clicked');
+    console.log(d);
+    d3.select(event.currentTarget)
+      .attr('opacity', 1);
+  }
+
 
   addLine(profile, race_year_id) {
     console.log(profile);
@@ -192,7 +305,7 @@ class ProfilesLineChart {
   // process gpx data for a single profile
   static process(gpx, cm) {
     console.log('processing gpx');
-    
+
     try {
 
       let tracks = gpx.querySelector("trkpt");
