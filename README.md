@@ -6,7 +6,7 @@ Jackson Dean	u1100004	jackson.dean@utah.edu
 
 [Project Website](https://jacksondean17.github.io/ultrarunning-insights/index.html))
 
-[Process Book](Process Book.pdf)
+[Process Book](https://github.com/jacksondean17/ultrarunning-insights/blob/main/Process%20Book.pdf)
 
 [Demo Video](https://youtu.be/UgZHEVNDP1w)
 
