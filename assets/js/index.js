@@ -40,34 +40,25 @@ races.then(races => {
 
 const course_mappings = d3.csv("assets/data/course_mappings.csv", d3.autoType);
 course_mappings.then(course_mappings => {
-  const profiles = loadProfiles(course_mappings);
-  
-  globalApplicationState.profileData = profiles;
+  loadProfiles(course_mappings);
 });
 
 async function loadProfiles(course_mappings) {
   const promises = course_mappings.map(cm => d3.xml(`../assets/data/gpx/${cm.file}`, d3.autoType)
     .then(d => {
-      return { id: cm.id, gpx: ProfilesLineChart.process(d) };
+      console.log('cm', cm);
+      // push to map key of id and value of gpx
+      //return { id: cm.id, gpx: d };
+      return { id: cm.race_year_id, gpx: ProfilesLineChart.process(d, cm) };
     }));
   let profiles = await Promise.all(promises);
+  console.log('end of loadProfiles', profiles);
+  globalApplicationState.profileData = profiles;
+  console.log(globalApplicationState);
+  document.getElementById('pills-event-tab').classList.remove('disabled');
   return profiles;
 }
 
-// let profiles = [];
-// const profiles_chart = new ProfilesLineChart();
-// const course_mappings = d3.csv("assets/data/course_mappings.csv", d3.autoType);
-// course_mappings.then(course_mappings => {
-//   course_mappings.forEach(cm => {
-//     d3.xml("../assets/data/gpx/" + cm.file).then(d => {
-//       let data = ProfilesLineChart.process(d);
-//       profiles.push({ id: cm.id, gpx: data });
-//     });
-//   });
-// });
-// console.log("profile data", profiles);
-// globalApplicationState.profileData = profiles;
-// profiles_chart.drawAll(profiles);
 
 // event for tab switcher
 document.querySelector('button#pills-event-tab')
@@ -75,15 +66,15 @@ document.querySelector('button#pills-event-tab')
     console.log('tab switch');
     console.log(e.target.id);
     if (!drawn.ExtremesChart) {
+      drawn.ExtremesChart = true;
       const extremes_chart = new ExtremesChart(globalApplicationState);
       globalApplicationState.ExtremesChart = extremes_chart;
-      drawn.ExtremesChart = true;
       console.log('drawn ExtremesChart');
     }
     if (!drawn.ProfilesChart) {
+      drawn.ProfilesChart = true;
       const profiles_chart = new ProfilesLineChart(globalApplicationState);
       globalApplicationState.ProfilesChart = profiles_chart;
-      drawn.ProfilesChart = true;
       console.log('drawn ProfilesChart');
     }
   });
