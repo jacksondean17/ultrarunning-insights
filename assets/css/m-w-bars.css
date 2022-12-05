@@ -50,6 +50,16 @@ General styling for the table
     opacity: 0.8;
 }
 
+.dot {
+    fill-opacity: 0.35;
+}
+.dot.men {
+    fill: #19A0AA;
+}
+.dot.women {
+    fill: #F15F36;
+}
+
 .unsorted {
     opacity: 0.5;
 }
