@@ -32,6 +32,10 @@
     fill: black;
 }
 
+svg text {
+    fill: black;
+}
+
 .tooltip .tooltip-country {
     font-weight: bold;
     font-size: 14;
