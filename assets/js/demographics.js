@@ -17,6 +17,8 @@ class DemographicsChart {
             regression: x => -0.001065 * x + 10.8
         }
 
+        d3.select('#pills-demographics').classed('show', true)
+
         d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
             this.data = data;
             console.log(this.data)
@@ -320,7 +322,6 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.population.xScale(d.population_density) + this.DIMENSIONS.margin_left)
                     .attr('cy', d => this.yScale(d.score) + this.DIMENSIONS.margin_top)
-                    //.attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
                     .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
@@ -342,9 +343,8 @@ class DemographicsChart {
                 enter => enter.append('circle')
                     .attr('class', 'point')
                     .attr('r', 5)
-                    .attr('cx', d => this.health.xScale(d.health_care))
-                    .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .attr('cx', d => this.health.xScale(d.health_care) + this.DIMENSIONS.margin_left)
+                    .attr('cy', d => this.yScale(d.score) + this.DIMENSIONS.margin_top)
                     .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
@@ -365,9 +365,8 @@ class DemographicsChart {
                 enter => enter.append('circle')
                     .attr('class', 'point')
                     .attr('r', 5)
-                    .attr('cx', d => this.living.xScale(d.cost_of_living))
-                    .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .attr('cx', d => this.living.xScale(d.cost_of_living) + this.DIMENSIONS.margin_left)
+                    .attr('cy', d => this.yScale(d.score) + this.DIMENSIONS.margin_top)
                     .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
@@ -388,9 +387,8 @@ class DemographicsChart {
                 enter => enter.append('circle')
                     .attr('class', 'point')
                     .attr('r', 5)
-                    .attr('cx', d => this.elevation.xScale(d.elevation))
-                    .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .attr('cx', d => this.elevation.xScale(d.elevation) + this.DIMENSIONS.margin_left)
+                    .attr('cy', d => this.yScale(d.score) + this.DIMENSIONS.margin_top)
                     .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
