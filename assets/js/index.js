@@ -14,7 +14,8 @@ const globalApplicationState = {
 const drawn = {
   MvWBarChart: false,
   ExtremesChart: false,
-  ProfilesChart: false
+  ProfilesChart: false,
+  DemographicsChart: false
 };
 
 /**
@@ -80,5 +81,13 @@ document.querySelector('button#pills-event-tab')
 
 document.querySelector('button#pills-demo-tab')
   .addEventListener('shown.bs.tab', function (e) {
+    console.log('tab switch');
+    console.log(e.target.id);
+    if (!drawn.DemographicsChart) {
+      const demographics_chart = new DemographicsChart(globalApplicationState);
+      globalApplicationState.DemographicsChart = demographics_chart;
+      drawn.DemographicsChart = true;
+      console.log('drawn DemographicsChart');
+    }
 
   });
