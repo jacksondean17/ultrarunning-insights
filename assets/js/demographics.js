@@ -160,7 +160,7 @@ class DemographicsChart {
             .classed('tooltip-score-label', true)
             .attr('x', 10)
             .attr('y', 45)
-            .text('Score')
+            .text('Performance Index')
 
         tooltips.append('text')
             .classed('tooltip-score-value', true)
@@ -258,7 +258,7 @@ class DemographicsChart {
             .attr('class', 'axis-label')
             .attr('text-anchor', 'middle')
             .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
-            .text('Score')
+            .text('Performance Index')
 
         this.population.x_label = this.population.svg.append('text')
             .attr('class', 'axis-label')
@@ -270,7 +270,7 @@ class DemographicsChart {
             .attr('class', 'axis-label')
             .attr('text-anchor', 'middle')
             .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
-            .text('Score')
+            .text('Performance Index')
 
         this.health.x_label = this.health.svg.append('text')
             .attr('class', 'axis-label')
@@ -282,7 +282,7 @@ class DemographicsChart {
             .attr('class', 'axis-label')
             .attr('text-anchor', 'middle')
             .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
-            .text('Score')
+            .text('Performance Index')
 
         this.living.x_label = this.living.svg.append('text')
             .attr('class', 'axis-label')
@@ -294,7 +294,7 @@ class DemographicsChart {
             .attr('class', 'axis-label')
             .attr('text-anchor', 'middle')
             .attr('transform', `translate(20, ${this.DIMENSIONS.height / 2}) rotate(-90)`)
-            .text('Score')
+            .text('Performance Index')
 
         this.elevation.x_label = this.elevation.svg.append('text')
             .attr('class', 'axis-label')

@@ -203,7 +203,6 @@ class ProfilesLineChart {
         .on('mouseover', this.hoverProfile.bind(this))
         .on('mouseout', this.unhoverProfile.bind(this))
         .on('mousemove', this.moveProfile.bind(this))
-        .on('click', this.clickProfile.bind(this));
 
     });
   }
@@ -236,12 +235,6 @@ class ProfilesLineChart {
       .style('opacity', 0);
   }
 
-  clickProfile(event, d) {
-    alert('clicked');
-    console.log(d);
-    d3.select(event.currentTarget)
-      .attr('opacity', 1);
-  }
 
 
   addLine(profile, race_year_id) {
