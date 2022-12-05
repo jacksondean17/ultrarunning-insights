@@ -54,10 +54,12 @@ General styling for the table
     fill-opacity: 0.35;
 }
 .dot.men {
-    fill: #19A0AA;
+    fill-opacity: 0.4;
+    fill: #3aa1c1;
 }
 .dot.women {
-    fill: #F15F36;
+    fill-opacity: 0.6;
+    fill: #f33e0c;
 }
 
 .unsorted {

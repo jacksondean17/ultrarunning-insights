@@ -46,7 +46,7 @@ course_mappings.then(course_mappings => {
 });
 
 async function loadProfiles(course_mappings) {
-  const promises = course_mappings.map(cm => d3.xml(`../assets/data/gpx/${cm.file}`, d3.autoType)
+  const promises = course_mappings.map(cm => d3.xml(`assets/data/gpx/${cm.file}`, d3.autoType)
     .then(d => {
       // push to map key of id and value of gpx
       return { id: cm.race_year_id, gpx: ProfilesLineChart.process(d, cm) };
