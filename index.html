@@ -33,6 +33,7 @@
   <link href="assets/css/style.css" rel="stylesheet">
   <link href="assets/css/m-w-bars.css" rel="stylesheet">
   <link href="assets/css/extremes.css" rel="stylesheet">
+  <link href="assets/css/demographics.css" rel="stylesheet">
   <link href="assets/css/profiles.css" rel="stylesheet">
 
 
@@ -96,7 +97,7 @@
             type="button" role="tab" aria-controls="pills-events" aria-selected="false">Events</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link disabled" id="pills-demo-tab" data-bs-toggle="pill"
+          <button class="nav-link" id="pills-demo-tab" data-bs-toggle="pill"
             data-bs-target="#pills-demographics" type="button" role="tab" aria-controls="pills-demographics"
             aria-selected="false">Demographics</button>
         </li>
@@ -218,7 +219,50 @@
     </div>
     <div class="tab-pane fade show" id="pills-demographics" role="tabpanel" aria-labelledby="pills-demo-tab"
       tabindex="0">
-      ...</div>
+      <div id="demographics-div">
+        <div class="row">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Population Density</h5>
+                <!-- Line Chart -->
+                <div id="demographics-chart-1" class="demo-chart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Health Care Index</h5>
+                <!-- Line Chart -->
+                <div id="demographics-chart-2" class="demo-chart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Cost of Living</h5>
+                <!-- Line Chart -->
+                <div id="demographics-chart-3"class="demo-chart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Average Elevation</h5>
+                <!-- Line Chart -->
+                <div id="demographics-chart-4"class="demo-chart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
     </div>
 
   </main><!-- End #main -->
@@ -262,6 +306,8 @@
   <script src="assets/js/m-w-scatter.js"></script>
   <script src="assets/js/profiles.js"></script>
   <script src="assets/js/extremes.js"></script>
+  <script src="assets/js/profiles.js"></script>
+  <script src="assets/js/demographics.js"></script>
 
 </body>
 
