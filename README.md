@@ -4,7 +4,7 @@ Jackson Dean	u1100004	jackson.dean@utah.edu
 
 ## Interactive Dashboard Exploring ultra distance racing results and courses
 
-[Project Website](https://jacksondean17.github.io/ultrarunning-insights/index.html))
+[Project Website](https://jacksondean17.github.io/ultrarunning-insights/index.html)
 
 [Process Book](https://github.com/jacksondean17/ultrarunning-insights/blob/main/Process%20Book.pdf)
 
