@@ -1,3 +1,4 @@
-.line:hover {
-    opacity: 1;
+#tooltip-race-name {
+    font-weight: bold;
+    font-size: 14;
 }

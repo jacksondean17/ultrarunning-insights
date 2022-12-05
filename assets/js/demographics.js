@@ -17,6 +17,8 @@ class DemographicsChart {
             regression: x => -0.001065 * x + 10.8
         }
 
+        d3.select('#pills-demographics').classed('show', true)
+
         d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
             this.data = data;
             console.log(this.data)
