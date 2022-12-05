@@ -5,16 +5,16 @@ class DemographicsChart {
         this.selected_points = [];
 
         this.population = {
-            regression: x => -0.01224*x + 11.78
+            regression: x => -0.01224 * x + 11.78
         }
         this.health = {
-            regression: x => -0.1233*x + 18.6
+            regression: x => -0.1233 * x + 18.6
         }
         this.living = {
-            regression: x => -0.02729*x + 11.77
+            regression: x => -0.02729 * x + 11.77
         }
         this.elevation = {
-            regression: x => -0.001065*x + 10.8
+            regression: x => -0.001065 * x + 10.8
         }
 
         d3.csv('./assets/data/demographics/processed_data.csv', d3.autoType).then(data => {
@@ -58,7 +58,69 @@ class DemographicsChart {
         this.createScales()
         this.createAxisLabels()
         this.createAxes()
+        this.createTooltips()
     }
+
+    createTooltips() {
+        let tooltip_width = 200
+        let tooltip_height = 50
+
+        let tooltips = this.svgs.append('g')
+
+        tooltips.attr('class', 'tooltip')
+            .style('opacity', 1)
+            .append('rect')
+            .attr('width', tooltip_width)
+            .attr('height', tooltip_height)
+            .attr('rx', 5)
+
+        tooltips.append('text')
+            .classed('tooltip-country', true)
+            .attr('x', tooltip_width / 2)
+            .attr('y', 15)
+            .text('Country')
+            .attr('text-anchor', 'middle')
+
+        tooltips.append('text')
+            .classed('tooltip-data-label', true)
+            .attr('x', 10)
+            .attr('y', 30)
+            .text('Data')
+
+        tooltips.append('text')
+            .classed('tooltip-data-value', true)
+            .attr('x', tooltip_width - 10)
+            .attr('y', 30)
+            .text('Value')
+            .attr('text-anchor', 'end')
+
+        tooltips.append('text')
+            .classed('tooltip-score-label', true)
+            .attr('x', 10)
+            .attr('y', 45)
+            .text('Score')
+
+        tooltips.append('text')
+            .classed('tooltip-score-value', true)
+            .attr('x', tooltip_width - 10) 
+            .attr('y', 45)
+            .text('Value')
+            .attr('text-anchor', 'end')
+
+        this.population.tooltip = this.population.svg.select('.tooltip')
+        this.health.tooltip = this.health.svg.select('.tooltip')
+        this.living.tooltip = this.living.svg.select('.tooltip')
+        this.elevation.tooltip = this.elevation.svg.select('.tooltip')
+
+        this.population.tooltip.select('.tooltip-data-label').text('Population Density')
+        this.health.tooltip.select('.tooltip-data-label').text('Healthcare Index')
+        this.living.tooltip.select('.tooltip-data-label').text('Cost of Living Index')
+        this.elevation.tooltip.select('.tooltip-data-label').text('Elevation')
+
+
+    }
+
+
 
     createScales() {
         this.yScale = d3.scaleLinear()
@@ -198,12 +260,13 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.population.xScale(d.population_density))
                     .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
 
             )
-        
+
         this.health.svg.append('path')
             .datum(this.data)
             .attr('class', 'regression')
@@ -221,7 +284,8 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.health.xScale(d.health_care))
                     .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
             )
@@ -243,7 +307,8 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.living.xScale(d.cost_of_living))
                     .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
             )
@@ -265,11 +330,70 @@ class DemographicsChart {
                     .attr('r', 5)
                     .attr('cx', d => this.elevation.xScale(d.elevation))
                     .attr('cy', d => this.yScale(d.score))
-                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`),
+                    .attr('transform', `translate(${this.DIMENSIONS.margin_left}, ${this.DIMENSIONS.margin_top})`)
+                    .on('mouseover', this.circleMouseOver.bind(this)),
                 update => update,
                 exit => exit.remove()
             )
-            
+
+
+    }
+
+    circleMouseOver(e, d) {
+        d3.selectAll('.hovered').classed('hovered', false)
+        d3.selectAll('.point').filter(p => p.country === d.country).classed('hovered', true)
+
+        d3.selectAll('.tooltip')
+            .style('opacity', 0)
+
+        let tooltip = d3.select(e.target.parentNode).select('.tooltip')
+
+        let cx = e.target.cx.baseVal.value
+        let cy = e.target.cy.baseVal.value
+        let x = cx + 60
+        let y = cy + 10
+        if (cx > this.DIMENSIONS.width / 2) {
+            x -= 220
+        }
+        if (cy > this.DIMENSIONS.height / 2) {
+            y -= 70
+        }
+
+        tooltip.attr('transform', `translate(${x}, ${y})`)
+            .style('opacity', 1)
+        
+        tooltip.raise()
+
+        this.updateTooltips(d)
+
+        console.log(d)
+    }
+
+
+    updateTooltips(d) {
+        d3.selectAll('.tooltip')
+            .select('.tooltip-country')
+            .text(d.country)
+        d3.selectAll('.tooltip')
+            .select('.tooltip-score-value')
+            .text(d.score)
+
+        this.population.svg.select('.tooltip')
+            .select('.tooltip-data-value')
+            .text(d.population_density)
+
+        this.health.svg.select('.tooltip')
+            .select('.tooltip-data-value')
+            .text(d.health_care)
+
+        this.living.svg.select('.tooltip')
+            .select('.tooltip-data-value')
+            .text(d.cost_of_living)
+
+        this.elevation.svg.select('.tooltip')
+            .select('.tooltip-data-value')
+            .text(d.elevation)
+
 
     }
 
@@ -352,21 +476,7 @@ class DemographicsChart {
     }
 
 
-    attachEventListeners() {
-        this.select = d3.select('#extremes-select')
-        d3.select('#extremes-select')
-            .on('change', this.handleSelectChange.bind(this))
-    }
-
-    handleSelectChange(e) {
-        let value = e.target.value;
-        this.select.classed('fastest slowest hardest easiest biggest', false)
-        this.select.classed(value, true)
-
-        this.selected_chart.choice = value;
-        this.update();
-
-    }
+ 
 
 
     processData() {

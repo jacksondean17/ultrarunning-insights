@@ -9,3 +9,39 @@
     stroke-width: 1px;
     opacity: 0.5;
 }
+
+.hovered {
+    fill: red;
+    stroke: black;
+    stroke-width: 2px;
+    opacity: 1;
+}
+
+.tooltip rect {
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.tooltip .tooltip-country {
+    font-weight: bold;
+    font-size: 14;
+}
+
+.tooltip .tooltip-data-label {
+    font-weight: bold;
+    font-size: 12;
+}
+
+.tooltip .tooltip-data-value {
+    font-size: 12;
+}
+
+.tooltip .tooltip-score-label {
+    font-weight: bold;
+    font-size: 12;
+}
+
+.tooltip .tooltip-score-value {
+    font-size: 12;
+}
