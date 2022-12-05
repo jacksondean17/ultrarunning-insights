@@ -12,6 +12,17 @@
   scroll-behavior: smooth;
 }
 
+.card-title > .mlabel {
+  color: #3aa1c1 !important;
+  font-size: larger !important; 
+}
+
+.card-title > .wlabel {
+  font-size: larger !important;
+  color: #f33e0c !important;
+
+}
+
 /* style of line charts */
 .line-chart {
   stroke: rgb(79, 175, 211);

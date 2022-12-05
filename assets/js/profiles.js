@@ -1,8 +1,3 @@
-const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
-const USE_METRIC = true;
-const CHART_HEIGHT = 500;
-const CHART_WIDTH = 700;
-
 class ProfilesLineChart {
   constructor(globalApplicationState) {
 

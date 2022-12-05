@@ -95,25 +95,18 @@ class MvWScatterChart {
         this.svg.select('#dots')
             .selectAll(".dot")
             .data(this.selected_chart.data)
-            // .join('circle')
-            // .attr('class', 'dot')
-            // .attr('cx', d => this.x_axis_scale(d.x))
-            // .attr('cy', d => this.y_axis_scale(d.y))
-            // .attr('r', 1.5)
-            // .style('fill', '#69b3a2');
-
             .join(
                 enter => enter.append("circle")
-                    .attr("cx", (d) => this.x_axis_scale(d.x))
-                    .attr("cy", (d) => this.y_axis_scale(d.y))
-                    .attr("r", 1.5)
+                    .attr("cx", (d) => this.x_axis_scale(d.x) + this.DIMENSIONS.margin_left)
+                    .attr("cy", (d) => this.y_axis_scale(d.y) + this.DIMENSIONS.margin_top)
+                    .attr("r", 3)
                     .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
                 ,
                 // update => update.remove()
-                update => update.transition().duration(500)
-                    .attr("cx", (d) => this.x_axis_scale(d.x))
-                    .attr("cy", (d) => this.y_axis_scale(d.y))
-                    .attr("r", 1.5)
+                update => update.transition().duration(1000)
+                    .attr("cx", (d) => this.x_axis_scale(d.x) + this.DIMENSIONS.margin_left)
+                    .attr("cy", (d) => this.y_axis_scale(d.y) + this.DIMENSIONS.margin_top)
+                    .attr("r", 3)
                     .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
                 ,
                 exit => exit.remove()
@@ -134,17 +127,20 @@ class MvWScatterChart {
                 ).filter(d => !isNaN(d.y));
                 break;
             case 'num_races':
+                let set = new Set();
                 let a = Array.from(
                     this.individualData.map(d => {
-                        return {
-                            x: this.people.get(d.runner).length,
-                            y: d.average_pace,
-                            g: d.gender
+                        if (!set.has(d.runner)) {
+                            set.add(d.runner);
+                            return {
+                                x: this.people.get(d.runner).length,
+                                y: d.average_pace,
+                                g: d.gender
+                            }
                         }
                     })
-                );
-                let set = new Set(a);
-                this.selected_chart.data = Array.from(set);
+                ).filter(d => typeof d !== 'undefined');
+                this.selected_chart.data = a;
                 break;
         }
     }
@@ -185,8 +181,6 @@ class MvWScatterChart {
         // compare number of races in list vs average pace - do faster people run more or less events?
         // group by name
         // find count
-        // add list to memory
-        //this.people = Array.from(d3.group(this.GAS.rankingData, d => d.runner), ([name, races]) => ({ name, races }));
         this.people = d3.group(this.GAS.rankingData, d => d.runner);
 
     }

@@ -97,9 +97,8 @@
             type="button" role="tab" aria-controls="pills-events" aria-selected="false">Events</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="pills-demo-tab" data-bs-toggle="pill"
-            data-bs-target="#pills-demographics" type="button" role="tab" aria-controls="pills-demographics"
-            aria-selected="false">Demographics</button>
+          <button class="nav-link" id="pills-demo-tab" data-bs-toggle="pill" data-bs-target="#pills-demographics"
+            type="button" role="tab" aria-controls="pills-demographics" aria-selected="false">Demographics</button>
         </li>
       </ul>
     </div><!-- End Page Title -->
@@ -108,25 +107,27 @@
       <div class="tab-pane fade show active" id="pills-physiology" role="tabpanel" aria-labelledby="pills-phys-tab
         tabindex=" 0">
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg-5">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Age Performance</h5>
+                <h5 class="card-title">
+                  General Performance Between <span class="mlabel">Men </span>and <span class="wlabel"> Women</span>
+                </h5>
+                <div class="h6"></div>
                 <div>
                   <svg id="m-w-scatter-chart" width="100%" height="60vh">
                     <g id="dots"></g>
                   </svg>
-                  <select id="mw-scatter-select" class="form-select form-inline"
-                  aria-label="Default select example">
-                  <option class="" value="age" selected>Age</option>
-                  <option value="num_races">Number of Races Per Person</option>
-                </select>
+                  <select id="mw-scatter-select" class="form-select form-inline" aria-label="Default select example">
+                    <option class="" value="age" selected>Age</option>
+                    <option value="num_races">Number of Races Per Person</option>
+                  </select>
 
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col">
             <div class="card overflow-auto">
               <div class="card-body">
                 <h5 class="card-title">% of Top 50 Finishers</h5>
@@ -172,7 +173,7 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane fade show" id="pills-events" role="tabpanel" aria-labelledby="pills-event-tab" tabindex="0">
+      <div class="tab-pane fade" id="pills-events" role="tabpanel" aria-labelledby="pills-event-tab" tabindex="0">
         <div class="row">
           <div class="col-lg-12">
             <div class="card overflow-auto">
@@ -246,7 +247,7 @@
               <div class="card-body">
                 <h5 class="card-title">Cost of Living</h5>
                 <!-- Line Chart -->
-                <div id="demographics-chart-3"class="demo-chart"></div>
+                <div id="demographics-chart-3" class="demo-chart"></div>
               </div>
             </div>
           </div>
@@ -255,7 +256,7 @@
               <div class="card-body">
                 <h5 class="card-title">Average Elevation</h5>
                 <!-- Line Chart -->
-                <div id="demographics-chart-4"class="demo-chart"></div>
+                <div id="demographics-chart-4" class="demo-chart"></div>
               </div>
             </div>
           </div>
@@ -305,7 +306,6 @@
   <script src="assets/js/m-w-bars.js"></script>
   <script src="assets/js/m-w-scatter.js"></script>
   <script src="assets/js/extremes.js"></script>
-  <script src="assets/js/profiles.js"></script>
   <script src="assets/js/demographics.js"></script>
 
 </body>
