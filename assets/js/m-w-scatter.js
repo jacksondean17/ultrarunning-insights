@@ -104,15 +104,15 @@ class MvWScatterChart {
 
             .join(
                 enter => enter.append("circle")
-                    .attr("cx", (d) => this.x_axis_scale(d.x))
-                    .attr("cy", (d) => this.y_axis_scale(d.y))
+                    .attr("cx", (d) => this.x_axis_scale(d.x) + this.DIMENSIONS.margin_left)
+                    .attr("cy", (d) => this.y_axis_scale(d.y) + this.DIMENSIONS.margin_top)
                     .attr("r", 1.5)
                     .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
                 ,
                 // update => update.remove()
                 update => update.transition().duration(500)
-                    .attr("cx", (d) => this.x_axis_scale(d.x))
-                    .attr("cy", (d) => this.y_axis_scale(d.y))
+                    .attr("cx", (d) => this.x_axis_scale(d.x) + this.DIMENSIONS.margin_left)
+                    .attr("cy", (d) => this.y_axis_scale(d.y) + this.DIMENSIONS.margin_top)
                     .attr("r", 1.5)
                     .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
                 ,
