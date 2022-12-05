@@ -75,14 +75,17 @@ class ExtremesChart {
         this.x_axis_scale.paddingInner(0.1)
         this.y_axis_scale.domain([0, d3.max(this.selected_chart.data, d => d.data)])
 
-        //this.x_axis.tickValues(this.selected_chart.data.map(d => d.event))
-        this.x_axis_wrapper.transition().duration(500).call(this.x_axis)
+        this.x_axis_wrapper.call(this.x_axis)
+        
+        // hacky way to get the race names instead of race ids as the x axis labels
+        this.x_axis_wrapper.selectAll('text')
+            .text((d, i) => this.selected_chart.data[i].event)
+
         this.y_axis_wrapper.transition().duration(500).call(this.y_axis)
 
         this.x_axis_wrapper.selectAll('text')
             .attr('transform', 'rotate(-45)')
             .attr('text-anchor', 'end')
-
 
         let bars = this.svg.selectAll('.bar')
             .data(this.selected_chart.data)
