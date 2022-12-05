@@ -3,7 +3,7 @@ class MvWScatterChart {
         this.GAS = globalApplicationState;
 
         this.selected_chart = {
-            choice: '',
+            choice: 'age',
             title: '',
             y_label: 'Average Pace (min/mile)',
             data: null
@@ -30,7 +30,6 @@ class MvWScatterChart {
         this.DIMENSIONS.drawable_width = this.DIMENSIONS.width - this.DIMENSIONS.margin_left - this.DIMENSIONS.margin_right;
         this.DIMENSIONS.drawable_height = this.DIMENSIONS.height - this.DIMENSIONS.margin_top - this.DIMENSIONS.margin_bottom;
 
-        // scale for the 10 bars
         this.x_axis_scale = d3.scaleLinear()
             .domain([0, 100])
             .range([0, this.DIMENSIONS.drawable_width])
@@ -69,18 +68,19 @@ class MvWScatterChart {
 
     update() {
         console.log('update', this.GAS);
-        this.selected_x_data = this.GAS.rankingData.map(d => d.age)
-        this.selected_y_data = this.GAS.rankingData.map(d => d.average_pace)
-        this.selected_data = Array.from(this.GAS.rankingData.map(function (d) { return { x: d.age, y: d.average_pace } }));
-        console.log(this.selected_data);
+        // this.selected_x_data = this.GAS.rankingData.map(d => d.age)
+        // this.selected_y_data = this.GAS.rankingData.map(d => d.average_pace)
+        // //this.selected_data = Array.from(this.GAS.rankingData.map(function (d) { return { x: d.age, y: d.average_pace } }));
+        // this.selected_data = Array.from(this.individualData.map(function (d) { return { x: d.age, y: d.average_pace } }));
+        // console.log(this.selected_data);
         this.getData();
-
+        console.log(this.selected_chart.data);
         // this.chart_title.text(this.selected_chart.title)
         this.y_axis_label.text(this.selected_chart.y_label)
-        this.x_axis_scale.domain([0, d3.max(this.selected_data, d => d.x)])
+        this.x_axis_scale.domain([0, d3.max(this.selected_chart.data, d => d.x)])
         // getting not a function here
         // this.x_axis_scale.padding(0.1)
-        this.y_axis_scale.domain([d3.max(this.selected_data, d => d.y), d3.min(this.selected_data, d => d.y)])
+        this.y_axis_scale.domain([d3.min(this.selected_chart.data, d => d.y), d3.max(this.selected_chart.data, d => d.y)])
 
         //this.x_axis.tickValues(this.selected_chart.data.map(d => d.event))
         this.x_axis_wrapper.transition().duration(500).call(this.x_axis)
@@ -90,67 +90,104 @@ class MvWScatterChart {
             .attr('transform', 'rotate(-45)')
             .attr('text-anchor', 'end')
 
+        // this.svg.select('#dots').selectAll('circle').remove();
         // Add dots
-        this.svg.append('g')
-            .selectAll("dot")
-            .data(this.selected_data)
+        this.svg.select('#dots')
+            .selectAll(".dot")
+            .data(this.selected_chart.data)
+            // .join('circle')
+            // .attr('class', 'dot')
+            // .attr('cx', d => this.x_axis_scale(d.x))
+            // .attr('cy', d => this.y_axis_scale(d.y))
+            // .attr('r', 1.5)
+            // .style('fill', '#69b3a2');
+
             .join(
                 enter => enter.append("circle")
                     .attr("cx", (d) => this.x_axis_scale(d.x))
                     .attr("cy", (d) => this.y_axis_scale(d.y))
                     .attr("r", 1.5)
-                    .style("fill", "#69b3a2"),
+                    .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
+                ,
+                // update => update.remove()
                 update => update.transition().duration(500)
                     .attr("cx", (d) => this.x_axis_scale(d.x))
                     .attr("cy", (d) => this.y_axis_scale(d.y))
                     .attr("r", 1.5)
-                    .style("fill", "#69b3a2")
+                    .attr('class', d => d.g === 'M' ? 'dot men' : 'dot women')
                 ,
                 exit => exit.remove()
-
             )
     }
 
     getData() {
         switch (this.selected_chart.choice) {
-
             case 'age':
-                this.selected_x_data = this.GAS.rankingData.map(d => d.age)
+                this.selected_chart.data = Array.from(
+                    this.individualData.map(function (d) {
+                        return {
+                            x: d.age,
+                            y: d.average_pace,
+                            g: d.gender
+                        }
+                    })
+                ).filter(d => !isNaN(d.y));
+                break;
+            case 'num_races':
+                let a = Array.from(
+                    this.individualData.map(d => {
+                        return {
+                            x: this.people.get(d.runner).length,
+                            y: d.average_pace,
+                            g: d.gender
+                        }
+                    })
+                );
+                let set = new Set(a);
+                this.selected_chart.data = Array.from(set);
+                break;
         }
     }
 
 
     attachEventListeners() {
-        // this.select = d3.select('#extremes-select')
-        // d3.select('#extremes-select')
-        //     .on('change', this.handleSelectChange.bind(this))
+        this.select = d3.select('#mw-scatter-select')
+        d3.select('#mw-scatter-select')
+            .on('change', this.handleSelectChange.bind(this))
     }
 
     handleSelectChange(e) {
-        // let value = e.target.value;
-        // this.select.classed('fastest slowest hardest easiest biggest', false)
-        // this.select.classed(value, true)
-
-        // this.selected_chart.choice = value;
+        let value = e.target.value;
+        this.selected_chart.choice = value;
         this.update();
-
     }
 
 
     processData() {
-
+        this.individualData = [];
+        let races_map = d3.group(this.GAS.raceData, d => d.race_year_id);
         this.GAS.rankingData.map(entry => {
             // find race distance
-            let race = this.GAS.raceData.filter((d) => { d.race_year_id === entry.race_year_id });
-            // convert to min/mile
-            entry.average_pace = (+entry.time_in_seconds / +race.distance) * 60 * 1.609344;
+            //let race = this.GAS.raceData.filter((d) => d.race_year_id === entry.race_year_id)[0];
+            let race = races_map.get(entry.race_year_id);
+            if (typeof race !== 'undefined' && entry.time !== 'NA') {
+                // convert to min/mile
+                entry.average_pace = ((+entry.time_in_seconds / +race[0].distance) / 60) * 1.609344;
+                // entry.average_pace = (+entry.time_in_seconds / +race.distance) * 60
+
+                // exclude those who don't have a listed age
+                if (entry.age > 0)
+                    this.individualData.push(entry);
+            }
         });
+
 
         // compare number of races in list vs average pace - do faster people run more or less events?
         // group by name
         // find count
         // add list to memory
-        this.people = Array.from(d3.group(this.GAS.rankingData, d => d.name), ([name, races]) => ({ name, races }));
+        //this.people = Array.from(d3.group(this.GAS.rankingData, d => d.runner), ([name, races]) => ({ name, races }));
+        this.people = d3.group(this.GAS.rankingData, d => d.runner);
 
     }
 }

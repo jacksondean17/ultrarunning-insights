@@ -23,7 +23,7 @@ const drawn = {
 */
 
 races = d3.csv("assets/data/race.csv", d3.autoType)
-ranks = d3.csv("assets/data/ultra_rankings.csv", d3.autoType)
+ranks = d3.csv("assets/data/ultra_rankings_clean.csv", d3.autoType)
 
 races.then(races => {
   ranks.then(ranks => {
